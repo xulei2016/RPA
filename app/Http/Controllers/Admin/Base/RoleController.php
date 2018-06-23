@@ -1,0 +1,151 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Base;
+
+use Hash;
+use Illuminate\Http\Request;
+use App\Model\Admin\Role\role as roles;
+use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Role\RoleRepository as Role;
+use App\Repositories\Models\Admin\Role\PermissionRepository as Permission;
+
+
+/**
+ * 角色管理
+ * @since 2018/2
+ * @author hus lay
+ * 
+ */
+class RoleController extends BaseController
+{
+    private $model;
+    private $permission;
+
+    //__CONSTRUCT
+    public function __CONSTRUCT(Role $model,Permission $permission)
+    {
+        parent::__construct();
+        $this->model = $model;
+        $this->permission = $permission;
+    }
+
+    /**
+     * 主页
+     */
+    public function index(Request $request){
+        $condition = [['table','=',1],['status','=',1]];
+        $top_list = $this->permission->findAllBy($condition, ['sort','asc']);
+        $menu = $this->get_group_menu($top_list['data']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 角色 列表");
+        return view('admin/admin/role/index',['menus' => $menu]);
+    }
+
+    /**
+     * add_role
+     */
+    public function add(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "添加 角色 页面");
+        return view('admin/admin/role/add');
+    }
+
+    /**
+     * edit_role
+     */
+    public function edit(Request $request){
+        $id = $request->id;
+        $info = $this->model->find($id);
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 角色 页面");
+        return view('admin/admin/role/edit', ['info'=>$info['data']]);
+    }
+
+    /**
+     * insert_role
+     */
+    public function insert(Request $request){
+        $data = $this->get_params($request, ['name','description','sort','type']);
+        $data['display_name'] = $data['name'];
+        $data['created_at'] = $this->getTime();
+        $this->log(__CLASS__, __FUNCTION__, $request, "插入 角色 信息");
+        return $this->model->create($data);
+    }
+
+    /**
+     * update_role
+     */
+    public function update(Request $request){
+        $data = $this->get_params($request, ['id','name','description','sort','type']);
+        $data['display_name'] = $data['name'];
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 角色 信息");
+        return $this->model->update($data,$data['id']);
+    }
+
+    /**
+     * insert_role
+     */
+    public function typeChange(Request $request){
+        $id = $request->id;
+        $type = (1 == $request->type) ? 0 : 1 ;
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 角色 状态");
+        return $this->model->update(['type'=>$type], $id);
+    }
+
+    //delete log
+    public function delete(Request $request){
+        $id = $request->id;
+        $this->log(__CLASS__, __FUNCTION__, $request, "删除 角色 列表");
+        return $this->model->delete($id);
+    }
+    
+    //delete_all
+    public function deleteAll(Request $request){
+        $ids = $request->ids;
+        $this->log(__CLASS__, __FUNCTION__, $request, "批量删除 角色 列表");
+        return $this->model->delete(explode(',',$ids));
+    }
+
+    //log_pagination
+    public function pagination(Request $request){
+        $selectInfo = $request->selectInfo;
+        $condition = $this->getPagingList($selectInfo, ['name'=>'like','from_created_at'=>'>=','to_created_at'=>'<=']);
+        $sort = ['id', $selectInfo['sort']];
+        return $this->model->paginate($condition, $sort, 10);
+    }
+
+    //getPersission
+    public function getPersission(Request $request){
+        $rid = $request->id;
+        $permission = $this->model->getPermissions($rid);
+        if($permission){
+            return $this->ajax_return(200,'success!',$permission);
+        }else{
+            return $this->ajax_return(500,'无权限！');
+        }
+    }
+
+    //授权操作
+    public function grantRole(Request $request){
+        $role = new roles;
+        $id = $request->id;
+        $user = $role->find($request->id);
+
+        $ids = $request->ids;
+        $user->perms()->sync($ids);
+        $this->log(__CLASS__, __FUNCTION__, $request, "角色 授权");
+        return $this->ajax_return(200,'操作成功！');
+    }
+
+    /**
+     * 查询分组
+     */
+    private function get_group_menu($menus){
+        foreach($menus as $menu){
+            $condition = [['pid','=',$menu['id']],['status','=',1]];
+            $result = $this->permission->findAllBy($condition, ['sort','asc']);
+            $result = $this->get_group_menu($result['data']);
+            if(!$result->isEmpty()){
+                $menu['menu'] = $result;
+            }
+        }
+        return $menus;
+    }
+}

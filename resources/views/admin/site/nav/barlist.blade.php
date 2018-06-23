@@ -1,0 +1,60 @@
+<div class="inner-section">
+    <table class="table table-bordered" id="list-table" cellspacing='0'>
+        <thead>
+            <tr>
+                <td width="10%"><b>模块</b></td>
+                <td width="5%"><b>排序</b></td>
+                <td width="5%"><b>启用</b></td>
+                <td width="15%"><b>菜单名称</b></td>
+                <td width="15%"><b>unique_name</b></td>
+                <td width="15%"><b>iconfont图标</b></td>
+                <td><b>访问地址</b></td>
+            </tr>
+        </thead>
+        <tbody id="sortBody" class='connectedSortBody'>
+            @foreach($menus as $top_menu)
+            <tr class="@if($loop->index % 2 == 0) even @endif" t-id="{{ $top_menu['id'] }}" title="点击进行拖放排序">
+                <td class="top-menu">{{ $top_menu['name'] }}</td>
+                <td class="top-menu-area" top-id="{{ $top_menu['id'] }}" colspan="6">
+                    <table class="table table-menus" cellspacing='0'>
+                        <tbody id="sortable" class='connectedSortable'>
+                            @foreach($top_menu['menus'] as $menu)
+                            <tr class='menu' m-id="{{ $menu['id'] }}" title="点击进行拖放排序">
+                                <td width="5%">{{ $menu['sort'] }}</td>
+                                <td width="7%"><input type="checkbox" class="menu-status" name="status" @if($menu['status']) checked="checked" @endif/></td>
+                                <td width="16%"><input type="text" class="menu-name" name="name" value="{{ $menu['name'] }}"/></td>
+                                <td width="16%"><input type="text" class="menu-unique_name" name="unique_name" value="{{ $menu['unique_name'] }}"/></td>
+                                <td width="15%"><i class="iconfont">{{ $menu['icon'] }} </i>&nbsp; <input type="text" class="menu-icon" name="icon" value="{{ $menu['icon'] }}"/></td>
+                                <td>{{URL::asset("/admin/".$menu['unique_name'] )}}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            @endforeach
+            <tr class="clone hidden">
+                <td class="top-menu">新增模板</td>
+                <td class="top-menu-area" top-id="" colspan="6">
+                    <table class="table table-menus" cellspacing='0'>
+                        <tbody id="sortable-new"  class='connectedSortable-new'>
+                            <tr class='menu' m-id="" title="点击进行拖放排序">
+                                <td width="5%">5</td>
+                                <td width="7%"><input type="checkbox" class="menu-status" name="status" checked="checked" /></td>
+                                <td width="16%"><input type="text" class="menu-name" name="name" value="菜单名称"/></td>
+                                <td width="16%"><input type="text" class="menu-unique_name" name="unique_name" value="unique_name"/></td>
+                                <td width="15%"><i class="iconfont">&#xe6b8; </i>&nbsp; <input type="text" class="menu-icon" name="icon" value="&#xe6b8;"/></td>
+                                <td>{{URL::asset("/admin/unique_name")}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<link href="{{URL::asset('/include/jquery-ui/jquery-ui.min.css')}}" rel="stylesheet">
+
+<script src="{{URL::asset('/include/jquery-ui/jquery-ui.min.js')}}"></script>
+<script src="{{URL::asset('/js/admin/site/nav/barlist.js')}}"></script>

@@ -1,0 +1,92 @@
+/* 首页 */
+#container #repository .dashboard-container{
+    padding: 20px 0;
+}
+#container #repository .dashboard-container .clear{
+    clear: both;
+}
+#container #repository .dashboard-container .left{
+    float: left;
+}
+#container #repository .dashboard-container .right{
+    float: right;
+}
+#container #repository .dashboard-container .admin,
+#container #repository .dashboard-container .message,
+#container #repository .dashboard-container .record{
+    margin-bottom: 10px;
+}
+#container #repository .dashboard-container .admin{
+    padding: 0 10px;
+    border-radius: 3px;
+    color: #7d7d7d;
+    font-weight: 600;
+}
+#container #repository .dashboard-container .message,
+#container #repository .dashboard-container .record{
+    padding: 0 10px;
+    border-radius: 3px;
+    color: #7d7d7d;
+    font-weight: 600;
+    cursor: pointer;
+}
+#container #repository .dashboard-container .card-panel{
+    float: left;
+    margin: 14px;
+    line-height: 35px;
+    height: 72px;
+    padding: 16px;
+    -webkit-transition: all 0.38s ease-out;
+    transition: all 0.38s ease-out;
+    border-radius: 6px;
+    font-size: 48px;
+}
+#container #repository .dashboard-container .message:hover .card-panel i,
+#container #repository .dashboard-container .record:hover .card-panel i{
+    color: #fff;
+}
+#container #repository .dashboard-container .message:hover .card-panel{
+    background-color: #36a3f7;
+}
+#container #repository .dashboard-container .card-panel.blue i{
+    color: #36a3f7;
+}
+#container #repository .dashboard-container .record:hover .card-panel{
+    background-color: #f4516c;
+}
+#container #repository .dashboard-container .card-panel.red i{
+    color: #f4516c;
+}
+#container #repository .dashboard-container .card-panel-description{
+    font-weight: bold;
+    margin: 26px;
+    margin-left: 0px;
+}
+#container #repository .dashboard-container .card-panel-description .card-panel-text{
+    line-height: 18px;
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 16px;
+}
+#container #repository .dashboard-container .card-panel-description .card-panel-num{
+    font-size: 20px;
+}
+#container #repository .content,
+#container #repository .content{
+    background-color: #fff;
+    padding: 10px;
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
+    margin: 0;
+}
+#container #repository .admin .head-img img{
+    width: 100px;
+    height: 100px;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+#container #repository .admin .info ol{
+    line-height: 26px;
+    list-style: none;
+    margin: 10px 0;
+    padding: 0;
+}
+

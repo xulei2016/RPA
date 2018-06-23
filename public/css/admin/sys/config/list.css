@@ -1,0 +1,28 @@
+/* 图片上传样式 */
+#container #content #myForm #imgManageForm #imgContent{
+    width: 100% !important;
+}
+#container #content #myForm #imgManageForm #imgContent > li{
+    float: left;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    list-style: none !important;
+    line-height: 50px;
+}
+#container #content #myForm #imgManageForm #imgContent > li img{
+    font-size: 42px;
+    color:#333;
+    -webkit-transition: font-size 0.25s ease-out 0s;
+    -moz-transition: font-size 0.25s ease-out 0s;
+    transition: font-size 0.25s ease-out 0s;
+}
+#container #content #myForm #imgManageForm #imgContent > li img:hover,
+#container #content #myForm #imgManageForm #imgContent > li i:hover{
+    width: 55px;
+}
+#container #content #myForm #imgManageForm #imgContent i{
+    font-size:18px;
+    color:#4c4c4c;
+    vertical-align: middle;
+}

@@ -1,0 +1,45 @@
+/**
+ *permission
+ */
+.inner-content #content #myTabContent,
+.inner-content #content #menuInfo,
+.inner-content #content #menuOperation{
+    padding: 8px 12px;
+    width: 30%;
+    float: left;
+}
+.inner-content #content #menuInfo{
+    width: 15%;
+}
+.inner-content #content #menuInfo .tab-pane{
+    min-height: 188px;
+}
+.inner-content #content #myTabContent .tab-pane,
+.inner-content #content #menuOperation .tab-pane,
+.inner-content #content #menuInfo .tab-pane{
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    line-height: 30px;
+}
+.inner-content #content #menuInfo .tab-pane a{
+    padding: 3px;
+    margin-right: 5px;
+    font-size: 16px;
+}
+.inner-content #content #menuInfo .tab-pane a:hover{
+    font-size: 22px;
+}
+.inner-content #content #myTabContent .per-title{
+    padding: 0 10px;
+    min-height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+}
+.inner-content #content #myTabContent .per-title .menus{
+    padding-left: 40px;
+    display: none;
+    position: relative;
+}
+.inner-content #content #myTabContent .per-title .menus li{
+    list-style: none;
+}

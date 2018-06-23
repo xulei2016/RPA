@@ -1,0 +1,183 @@
+/**
+ * rpa js
+ * @since 2018/5/16
+ * @author hsu lay
+ */
+$(function(){
+    var total = 1;//分页总页面数
+    var currentPage = 1;//当前页
+    var total_count = '';//当前页
+    var pageSize = '';//每页显示的记录数
+    var idList = [];//批量选择id所存的数组
+
+    //初始化
+    function init(){
+        bindevent();
+        init_pagination();
+    }
+
+    //事件绑定
+    function bindevent(){
+        //批量删除
+        $("#container .inner-content .middle-layer .deletebatch").on('click', function(){
+        	var ids = idList.join(',');
+            if("" == ids){
+                responseTip(1,'您尚未选择要删除的数据！',1500);
+        	}else{
+	            myConfirmModal("确定要批量删除资讯吗？",function(){
+		            $.ajax({
+		                url:"/admin/rpa_center/deleteAll",
+		                type:"post",
+		                data:{"ids":ids},
+		                dataType:"json",
+		                beforeSend:function(xhr){
+		                    $("#loading").modal('show');
+		                },
+		                complete:function(){
+		                    $("#loading").modal('hide');
+		                },
+		                success:function(json,statusText){
+		                    if(json.code == 200){
+                                if(currentPage != 1 && (total_count - idList.length) % pageSize == 0){
+                                    currentPage = currentPage - 1;
+                                }
+                                idList = [];//初始化idList的值
+                                render(currentPage);
+                            }else{
+                                responseTip(json.code,json.info,1500);
+                            }
+		                },
+		                error:errorResponse
+		            });
+	            });
+        	}
+        });
+    }
+
+    /**
+     * 删除单条记录
+     */
+    function deleteOne(){
+        var ids = $(this).attr("data_id");
+        myConfirmModal("确定要删除该资讯吗？",function(){
+           $.ajax({
+               url:"/admin/rpa_center/delete",
+               type:"post",
+               data:{"id":ids},
+               dataType:"json",
+               beforeSend:function(xhr){
+                   $("#loading").modal('show');
+               },
+               complete:function(){
+                   $("#loading").modal('hide');
+               },
+               success:function(json,statusText){
+                    if(json.code == 200){
+                       var length = $("#container #content .inner-section #list-table tbody tr").length - 1;
+                       if(currentPage !=1 && length % pageSize == 1){
+                           currentPage = currentPage - 1;
+                       }
+                       render(true,currentPage,pageSize);
+                    }else{
+                        responseTip(json.code,json.info,1500);
+                    }
+               },
+               error:errorResponse
+           });
+       });
+    }
+
+    /**
+     * 案例分页显示方法
+     */
+    function init_pagination(){
+        render(1);
+        //调用公共分页方法
+        pagination("#container .inner-section #page",{pageSize:pageSize,total:total},render);
+    }
+
+    /**
+     * 分页动态渲染数据
+     * @param pageIndex 当前显示页
+     * @param pageSize 每页显示记录数
+     */
+    function render(pageIndex){
+        $.ajax({
+            type:'post',
+            url:'/admin/rpa_center/rpa_list',
+            data:{page:pageIndex},//从1开始计数
+            dataType:'json',
+            beforeSend:function(xhr){
+                $("#loading").modal('show');
+            },
+            complete:function(){
+                $("#loading").modal('hide');
+            },
+            success:function(json){
+                if(json.code == 200){
+                    var data = json.data;
+                    var html ='';
+
+                    html+='<tr><th><input type="checkbox" class="select-all icheckbox"><th>ID</th>'
+                        +'<th>任务名称</th>'
+                        +'<th>任务描述</th>'
+                        +'<th>失败次数</th>'
+                        +'<th>是否占用资源</th>'
+                        +'<th>超时时间</th>'
+                        +'<th>邮件</th>'
+                        +'<th>电话</th>'
+                        +'<th>操作</th></tr>';
+
+                    for(let i = 0; i < data.data.length;i++){
+                        let row = data.data[i];
+                        let id = row.id;
+                        let type = (1 == row.isfp) ? '<span class="text-danger">是</span>' : '<span class="text-success">否</span>' ;
+                        let PhoneNum = row.PhoneNum || '···';
+                        let s_PhoneNum = row.PhoneNum ? (row.PhoneNum.length > 18) ? row.PhoneNum.substring(0,16)+'···' : row.PhoneNum  :'···';
+                        let emailreceiver = row.emailreceiver || '···';
+                        let s_emailreceiver = row.emailreceiver ? (row.emailreceiver.length > 18) ? row.emailreceiver.substring(0,16)+'···' : row.emailreceiver  :'···';
+                        let bewrite = (row.bewrite.length > 18) ? row.bewrite.substring(0,16)+'···' : row.bewrite ;
+
+                        let checked = (idList.indexOf(id.toString()) >= 0) ? "checked":"";//判断当前记录先前有没有被选中
+                        html+='<tr><td><input type="checkbox" class="select-single icheckbox" value="'+id+'" '+checked+'></td>'
+                        +'<td>'+row.id+'</td>'
+                        +'<td>'+row.name+'</td>'
+                        +'<td title="'+row.bewrite+'">'+bewrite+'</td>'
+                        +'<td>'+row.failtimes+'</td>'
+                        +'<td>'+type+'</td>'
+                        +'<td>'+row.timeout+'</td>'
+                        +'<td title="'+emailreceiver+'">'+s_emailreceiver+'</td>'
+                        +'<td title="'+PhoneNum+'">'+s_PhoneNum+'</td>'
+                        +'<td>'
+                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="/admin/rpa_center/edit/'+id+'" onclick="operation($(this));">修改</a> '
+                        +'<a class="btn btn-danger btn-sm delete" href="#" data_id="'+id+'">删除</a>'
+                        +'</td>'
+                        +'</tr>';
+                    }
+                    if(data.data.length == 0){
+                        html += '<tr><td colspan="'+ $(html).find("th").length +'"><p class="text-danger">暂无数据。</p></td></tr>';
+                        $("#container .inner-section #page").html('');
+                    }
+                    $("#container #content #list-table tbody").html(html);
+
+                    currentPage = data.current_page;
+                    total_count = data.total;
+                    pageSize = data.per_page;
+                    $("#container .inner-section #page").bootpag({total:data.last_page,total_count:data.total,page:currentPage});//重新计算总页数,总记录数
+
+                    init_iCheck();
+                    batchSelect(idList,"#container #content #list-table .select-all","#container #content #list-table .select-single");
+
+                    $("#container .inner-section #list-table .delete").click(deleteOne);
+                        
+                }else{
+                    responseTip(json.code,json.info,1500);
+                }
+            },
+            error:errorResponse
+        });
+    }
+
+
+    init();
+})

@@ -1,0 +1,228 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+// 后台路由管理
+Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
+    Route::group(['middleware' => ['auth.admin','web'], ], function(){
+
+        //Base
+        Route::group(['namespace' => 'Base'], function(){
+            // 首页
+            Route::get('/', 'SysController@index');
+            Route::get('/index', 'SysController@index')->name('index');
+            
+            //系统设置
+            Route::post('/sysManage', 'SysController@index');
+            Route::post('/sysManage/index', 'SysController@index');
+            Route::post('/sysManage/nav', 'SysController@navbar');
+            
+            //清除缓存
+            Route::post('/clean_cache', 'SysController@clean_cache');
+            Route::post('/postMessage', 'SysController@postMessage');
+            
+            //图标库
+            Route::post('/icon_list', 'NavController@icon_list');
+            
+            //导航栏
+            Route::post('/bar_list', 'NavController@bar_list');
+            Route::post('/bar_list/update_nav', 'NavController@update_nav');
+            Route::post('/bar_list/update_nav_menu', 'NavController@update_nav_menu');
+            Route::post('/bar_list/update_top_nav', 'NavController@update_top_nav');
+            Route::post('/bar_list/insert_nav', 'NavController@insert_nav');
+            
+            //通知
+            Route::post('/message', 'MessageController@index');
+            
+            //操作日志
+            Route::post('/base_log', 'LogController@log_list');
+            Route::post('/base_log/log_list', 'LogController@log_pagination');
+            Route::post('/base_log/deleteAll', 'LogController@deleteAll');
+            Route::post('/base_log/delete', 'LogController@delete');
+            
+            //错误日志
+            Route::post('/error_log', 'ErrorLogController@log_list');
+            Route::post('/error_log/log_list', 'ErrorLogController@log_pagination');
+            Route::post('/error_log/deleteAll', 'ErrorLogController@deleteAll');
+            Route::post('/error_log/delete', 'ErrorLogController@delete');
+            
+            //控制面板
+            // Route::post('/base_manage', 'SysController@dashboard');
+
+            //角色管理
+            Route::post('/role_manage', 'RoleController@index');
+            Route::post('/role_manage/add_role', 'RoleController@add');
+            Route::post('/role_manage/edit', 'RoleController@edit');
+            Route::post('/role_manage/typeChange', 'RoleController@typeChange');
+            Route::post('/role_manage/grantRole', 'RoleController@grantRole');
+            Route::post('/role_manage/postPersission', 'RoleController@postPersission');
+            Route::post('/role_manage/insert', 'RoleController@insert');
+            Route::post('/role_manage/update', 'RoleController@update');
+            Route::post('/role_manage/delete', 'RoleController@delete');
+            Route::post('/role_manage/deleteAll', 'RoleController@deleteAll');
+            Route::post('/role_manage/role_list', 'RoleController@pagination');
+
+            //权限管理
+            Route::post('/permission_manage', 'PermissionController@index');
+            Route::post('/permission_manage/add_role', 'PermissionController@add');
+            Route::post('/permission_manage/edit', 'PermissionController@edit');
+            Route::post('/permission_manage/typeChange', 'PermissionController@typeChange');
+            Route::post('/permission_manage/insert', 'PermissionController@insert');
+            Route::post('/permission_manage/update', 'PermissionController@update');
+            Route::post('/permission_manage/delete', 'PermissionController@delete');
+            Route::post('/permission_manage/deleteAll', 'PermissionController@deleteAll');
+            Route::post('/permission_manage/role_list', 'PermissionController@pagination');
+
+            //管理员管理
+            Route::post('/admin_manage/add', 'AdminController@add');
+            Route::post('/admin_manage/edit', 'AdminController@edit');
+            Route::post('/admin_manage/typeChange', 'AdminController@typeChange');
+            Route::post('/admin_manage/insert', 'AdminController@insert');
+            Route::post('/admin_manage/update', 'AdminController@update');
+            Route::post('/admin_manage/edit_info', 'AdminController@update_info');
+            Route::post('/admin_manage/delete', 'AdminController@delete');
+            Route::post('/admin_manage/deleteAll', 'AdminController@deleteAll');
+            Route::post('/admin_manage/admin_list', 'AdminController@pagination');
+            Route::post('/admin_manage/change_theme','AdminController@change_theme');
+            Route::post('/admin_manage/{id?}', 'AdminController@lists');
+
+            //管理员个人中心
+            Route::post('/admin_center/{type?}', 'AdminController@manageList');
+            Route::post('/admin_center/edit_info', 'AdminController@update_info');
+            Route::post('/admin_center/check_pwd', 'AdminController@check_ori_pwd');
+
+            //系统管理
+            Route::post('/sys_manage','SysController@sysConfig');
+            Route::post('/sys_manage/postImg','SysController@headImgList');
+            Route::post('/sys_manage/editConfig','SysController@update');
+            Route::post('/sys_manage/addImg','SysController@addImg');
+        });
+        
+        // Banner
+        Route::group(['namespace' => 'Banner'], function(){
+            //banner
+            Route::post('/banner', 'BannerController@banner_list');
+            Route::post('/banner/add_banner', 'BannerController@add_banner');
+            Route::post('/banner/edit_banner/{id}', 'BannerController@edit_banner');
+            Route::post('/banner/del_banner', 'BannerController@del_banner');
+            Route::post('/banner/insert', 'BannerController@insert_banner');
+            Route::post('/banner/edit', 'BannerController@update_banner');
+        });
+
+        //rpa
+        Route::group(['namespace' => 'RPA'],function(){
+            //rpa管理中心
+            Route::post('/rpa_center','RpaController@index');
+            Route::post('/rpa_center/add','RpaController@add');
+            Route::post('/rpa_center/edit/{id}','RpaController@edit');
+            Route::post('/rpa_center/insert','RpaController@insert');
+            Route::post('/rpa_center/update','RpaController@update');
+            Route::post('/rpa_center/delete','RpaController@delete');
+            Route::post('/rpa_center/deleteAll','RpaController@deleteAll');
+            Route::post('/rpa_center/rpa_list', 'RpaController@pagination');
+            //任务总览
+            Route::post('/rpa_center/taskList','RpaController@taskList');
+            Route::post('/rpa_center/immedtask','RpaController@immedtasks');
+            Route::post('/rpa_center/rpa_taskList', 'RpaController@taskPagination');
+            //rpa 队列
+            Route::post('/rpa_center/queue','RpaController@queue');
+            Route::post('/rpa_center/editQueue/{id}','RpaController@editQueue');
+            Route::post('/rpa_center/updateQueue','RpaController@updateQueue');
+            Route::post('/rpa_center/deleteQueue','RpaController@deleteQueue');
+            Route::post('/rpa_center/deleteQueueAll','RpaController@deleteQueueAll');
+            Route::post('/rpa_center/rpa_queueList', 'RpaController@queuePagination');
+            //朝闻天下
+            Route::post('/rpa_news','NewsController@index');
+            Route::post('/rpa_news/add','NewsController@add');
+            Route::post('/rpa_news/edit/{id}','NewsController@edit');
+            Route::post('/rpa_news/immedtask','NewsController@immedtasks');
+            Route::post('/rpa_news/insert','NewsController@insert');
+            Route::post('/rpa_news/update','NewsController@update');
+            Route::post('/rpa_news/delete','NewsController@delete');
+            Route::post('/rpa_news/deleteAll','NewsController@deleteAll');
+            Route::post('/rpa_news/rpa_list', 'NewsController@pagination');
+            Route::post('/rpa_news/insert_immed','NewsController@insertImmedtasks');
+            //失信查询
+            Route::post('/rpa_discredit','DiscreditController@index');
+            Route::post('/rpa_discredit/add','DiscreditController@add');
+            Route::post('/rpa_discredit/edit/{id}','DiscreditController@edit');
+            Route::post('/rpa_discredit/immedtask','DiscreditController@immedtasks');
+            Route::post('/rpa_discredit/insert','DiscreditController@insert');
+            Route::post('/rpa_discredit/update','DiscreditController@update');
+            Route::post('/rpa_discredit/delete','DiscreditController@delete');
+            Route::post('/rpa_discredit/deleteAll','DiscreditController@deleteAll');
+            Route::post('/rpa_discredit/rpa_list', 'DiscreditController@pagination');
+            Route::post('/rpa_discredit/insert_immed','DiscreditController@insertImmedtasks');
+            //投资者密码
+            Route::post('/rpa_investorPWD','InvestorPWDController@index');
+            Route::post('/rpa_investorPWD/add','InvestorPWDController@add');
+            Route::post('/rpa_investorPWD/edit/{id}','InvestorPWDController@edit');
+            Route::post('/rpa_investorPWD/immedtask','InvestorPWDController@immedtasks');
+            Route::post('/rpa_investorPWD/insert','InvestorPWDController@insert');
+            Route::post('/rpa_investorPWD/update','InvestorPWDController@update');
+            Route::post('/rpa_investorPWD/delete','InvestorPWDController@delete');
+            Route::post('/rpa_investorPWD/deleteAll','InvestorPWDController@deleteAll');
+            Route::post('/rpa_investorPWD/rpa_list', 'InvestorPWDController@pagination');
+            Route::post('/rpa_investorPWD/insert_immed','InvestorPWDController@insertImmedtasks');
+            //客户分组
+            Route::post('/rpa_customerGrouping','CustomerGroupingController@index');
+            Route::post('/rpa_customerGrouping/add','CustomerGroupingController@add');
+            Route::post('/rpa_customerGrouping/edit/{id}','CustomerGroupingController@edit');
+            Route::post('/rpa_customerGrouping/immedtask','CustomerGroupingController@immedtasks');
+            Route::post('/rpa_customerGrouping/insert','CustomerGroupingController@insert');
+            Route::post('/rpa_customerGrouping/update','CustomerGroupingController@update');
+            Route::post('/rpa_customerGrouping/delete','CustomerGroupingController@delete');
+            Route::post('/rpa_customerGrouping/deleteAll','CustomerGroupingController@deleteAll');
+            Route::post('/rpa_customerGrouping/rpa_list', 'CustomerGroupingController@pagination');
+            Route::post('/rpa_customerGrouping/insert_immed','CustomerGroupingController@insertImmedtasks');
+            //问卷
+            Route::post('/rpa_questionnaire','QuestionnaireController@index');
+            Route::post('/rpa_questionnaire/add','QuestionnaireController@add');
+            Route::post('/rpa_questionnaire/edit/{id}','QuestionnaireController@edit');
+            Route::post('/rpa_questionnaire/immedtask','QuestionnaireController@immedtasks');
+            Route::post('/rpa_questionnaire/insert','QuestionnaireController@insert');
+            Route::post('/rpa_questionnaire/update','QuestionnaireController@update');
+            Route::post('/rpa_questionnaire/delete','QuestionnaireController@delete');
+            Route::post('/rpa_questionnaire/deleteAll','QuestionnaireController@deleteAll');
+            Route::post('/rpa_questionnaire/rpa_list', 'QuestionnaireController@pagination');
+            Route::post('/rpa_questionnaire/insert_immed','QuestionnaireController@insertImmedtasks');
+        });
+
+    });
+    
+    //login 
+    Route::group(['namespace' => 'Base'], function(){
+        Route::post('/login', 'LoginController@showLoginForm')->name('admin.login');
+        Route::post('/login', 'LoginController@login');
+        Route::any('/logout', 'LoginController@logout')->name('logout');
+    });
+
+    //未知路由
+    Route::any('/{name?}', function(){
+        return redirect()->route('index');
+    });
+    // Route::any('/{name?}', 'Base\SysController@notAllow');
+});
+
+
+
+
+
+    //前台访问地址
+
+    //首页
+    Route::get('/', function () {
+        return view('welcome');
+    });
+
+    //用户登录注册
+    // Auth::routes();
