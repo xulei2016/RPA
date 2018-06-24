@@ -318,6 +318,13 @@ class BaseController extends Controller
 		}
 		return $conditionList;
     }
+
+    //获取数组数据
+    public function get_one($data){
+        foreach($data as $param){
+            yield $param;
+        }
+    }
     	
 	/**
 	 * 判断是否是时间区域

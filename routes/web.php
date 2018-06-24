@@ -199,6 +199,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             //数据统计
             Route::post('/rpa_log','StatisticsController@rpa_log');
             Route::post('/rpa_log/log','StatisticsController@pagination');
+            Route::post('/rpa_log/getData','StatisticsController@getData');
             Route::post('/rpa_statistics','StatisticsController@index');
 
         });
