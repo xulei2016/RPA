@@ -93,6 +93,20 @@ abstract class Repository implements RepositoryInterface, CriteriaInterface
     }
 
     /**
+     * @param array $condition
+     * @return $count
+     */
+    public function count(array $condition = [])
+    {
+        try{
+            $result = $this->where($condition)->count();
+            return $this->model->error_return('200',$result,true);
+        }catch (\Exception $ex){
+            return $this->model->errorLog(static::class, __FUNCTION__, $ex);
+        }
+    }
+
+    /**
      * @param  string $value
      * @param  string $key
      * @return array

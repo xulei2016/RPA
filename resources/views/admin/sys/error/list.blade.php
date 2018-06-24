@@ -17,6 +17,11 @@
         <a href="javascript:;" class="btn btn-default btn-sm deletebatch">批量删除<i class="iconfont icon">&#xe69d;</i></a>
         <a href="javascript:;" class="btn btn-default btn-sm selectsort" title="降序" type="desc">排序<i class="iconfont icon">&#xe6d0;</i></a>
         <a href="javascript:;" class="btn btn-default btn-sm selectengine" data-toggle="collapse" data-target="#search-group" title="筛选器" type="active">筛选器<i class="iconfont icon">&#xe6d8;</i></a>
+        <select name="selectnum" class="btn btn-default btn-sm selectnum">
+            <option value="5">分页数：5</option>
+            <option value="10" selected>分页数：10</option>
+            <option value="20">分页数：20</option>
+        </select>
     </div>
 </div>
 <div class="inner-section">

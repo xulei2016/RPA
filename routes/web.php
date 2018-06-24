@@ -20,6 +20,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             // 首页
             Route::get('/', 'SysController@index');
             Route::get('/index', 'SysController@index')->name('index');
+            Route::post('/dashboard', 'SysController@get_index');
             
             //系统设置
             Route::post('/sysManage', 'SysController@index');
@@ -195,8 +196,12 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             Route::post('/rpa_questionnaire/deleteAll','QuestionnaireController@deleteAll');
             Route::post('/rpa_questionnaire/rpa_list', 'QuestionnaireController@pagination');
             Route::post('/rpa_questionnaire/insert_immed','QuestionnaireController@insertImmedtasks');
-        });
+            //数据统计
+            Route::post('/rpa_log','StatisticsController@rpa_log');
+            Route::post('/rpa_log/log','StatisticsController@pagination');
+            Route::post('/rpa_statistics','StatisticsController@index');
 
+        });
     });
     
     //login 

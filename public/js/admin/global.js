@@ -173,6 +173,18 @@ function adaptScreen(obj){
     });
 }
 
+//定义时间按钮事件
+var init_date = () => {
+    let nowDate = getFormatDate();
+    //定义时间按钮事件
+    let st = '#container .inner-content #repository .middle-layer #startTime';
+    let et = '#container .inner-content #repository .middle-layer #endTime';
+    laydate.render({elem: st, type: 'datetime', max : nowDate, done: function(value, date, endDate){
+        laydate.render({elem: et, type: 'datetime', show: true, min : value, max : nowDate});
+    }});
+    laydate.render({elem: et, type: 'datetime', max : nowDate});
+}
+
 //刷新
 var refresh = () => {
     // let url = $('.sidebar .sidebar-content li.active a').attr('url');
@@ -189,6 +201,7 @@ function operation(_this) {
     $('#Modal .modal-content .modal-body').text('').load(url,{limit: 25});
     $('#Modal').modal('show');
 }
+
 //pjax
 function pjaxContent(_this) {
     let url = _this.attr('url');
@@ -435,6 +448,17 @@ function selecteSort(selectInfo, callback){
         }
         _this.attr({'type':type,'title':title}).find('i').html(icon);
         selectInfo.sort = type;
+        callback(1);
+    });
+}
+    
+//点击分页数触发事件
+function selectePageNum(selectInfo, callback){
+    //排序事件
+    $("#container .inner-content .middle-layer .selectnum").on('change', function(){
+        let _this = $(this);
+        let num = _this.val() ? _this.val() : 10 ;
+        selectInfo.num = num;
         callback(1);
     });
 }

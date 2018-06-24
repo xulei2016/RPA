@@ -1,6 +1,3 @@
-@extends('admin.inner.app')
-
-@section('content')
 <div class="inner-content">
     <section id="error-page">
         <div class="error-page-inner">
@@ -28,14 +25,7 @@
         </div>
     </section>
 </div>
-@endsection
-
-@section('script-top')
 <link href="{{URL::asset('/include/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
 <link href="{{URL::asset('/css/admin/sys/errors/404.min.css')}}" rel="stylesheet">
-@endsection
-
-@section('script-foot')
 <script type="text/javascript" src="{{URL::asset('/include/jquery/jquery-3.3.1.min.js')}}"></script>
 <script type="text/javascript" src="{{URL::asset('/include/bootstrap/js/bootstrap.min.js')}}"></script>
-@endsection

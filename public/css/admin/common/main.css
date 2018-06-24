@@ -286,8 +286,9 @@ th {
 }
 
 .sidebar .sidebar-wrapper .sidebar-content .sidebar-nav .sidebar-title .icon{
-    display: inline-block;
-    margin: 0 8px 0 20px;
+    /*display: inline-block; *//*旋转必备*/
+    font-size: 18px;
+    margin: 0 16px 0 16px;
     vertical-align: middle;
     transition: -webkit-transform .12s;
     transition: transform .12s;
@@ -304,7 +305,7 @@ th {
 }
 .sidebar .sidebar-wrapper .sidebar-content .sidebar-nav ul{
     height: 0px;
-    width: 200px;
+    width: 180px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -578,6 +579,9 @@ th {
 }
 #container .inner-content .middle-layer .glyphicon{
     min-width: 45px;
+}
+#container .inner-content .middle-layer .selectnum{
+    height: 31px;
 }
 #container .inner-content .middle-layer .right{
     float: right;

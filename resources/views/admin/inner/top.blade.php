@@ -11,7 +11,7 @@
             <div class="bread-bar">
                 <div class="sidebar-fold topbar-sidebar-unfold"><b><i class="iconfont icon">&#xe63d;</i></b></div>
                 <ol class="bread-crumb hidden-xs hidden-sm">
-                    <li><a href="./admin">首页</a></li>
+                    <li><a href="#" url="./admin/dashboard" onclick="pjaxContent($(this))">首页</a></li>
                     <li class="active"></li>
                 </ol>
             </div>
@@ -101,13 +101,13 @@
                         </p>
                     </div>
                     <div class="body">
-                        <a class="adminbar-list" href="{{ url('/admin/admin_center/baseinfo') }}">
+                        <a class="adminbar-list" url="{{ url('/admin/admin_center/baseinfo') }}" onclick="pjaxContent($(this));">
                             <span class="adminbar-icon"><i class="iconfont icon">&#xe668;</i></span><span>基本资料</span>
                         </a>
-                        <a class="adminbar-list" href="{{ url('/admin/admin_center/changePWD') }}">
+                        <a class="adminbar-list" url="{{ url('/admin/admin_center/changePWD') }}" onclick="pjaxContent($(this));">
                             <span class="adminbar-icon"><i class="iconfont icon">&#xe6ce;</i></span><span>修改密码</span>
                         </a>
-                        <a class="adminbar-list" href="{{ url('/admin/admin_center/safeSetting') }}">
+                        <a class="adminbar-list" url="{{ url('/admin/admin_center/safeSetting') }}" onclick="pjaxContent($(this));">
                             <span class="adminbar-icon"><i class="iconfont icon">&#xe68e;</i></span><span>安全设置</span>
                         </a>
                         <a class="adminbar-list">

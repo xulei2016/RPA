@@ -48,6 +48,7 @@ class ErrorLogController extends BaseController
         $selectInfo = $request->selectInfo;
         $condition = $this->getPagingList($selectInfo, ['account'=>'like','from_add_time'=>'>=','to_add_time'=>'<=']);
         $sort = ['id', $selectInfo['sort']];
-        return $this->app->paginate($condition, $sort, 10);
+        $num = $selectInfo['num'];
+        return $this->app->paginate($condition, $sort, $num);
     }
 }

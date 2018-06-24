@@ -33,25 +33,20 @@ class SysController extends BaseController
     public function index(Request $request){
         $admin = session('sys_admin');
         // $admin['address'] = $admin['lastAddress']['city'].'-'.$admin['lastAddress']['county'].'-'.$admin['lastAddress']['isp'].'-'.$admin['lastAddress']['ip'];
-        $info['sys'] = [
-            'PORT' => $_SERVER['SERVER_PORT'],
-            'PHP_OS' => PHP_OS,
-            'SERVER_INFO' => $_SERVER ['SERVER_SOFTWARE'],
-            'FILE_UPLOAD_MAX_SIZE' => get_cfg_var ("upload_max_filesize")?get_cfg_var ("upload_max_filesize"):"不允许上传附件",
-            'PHP_VERSION' => PHP_VERSION
-        ];
-        $con = mysqli_connect(env('DB_HOST'),env('DB_USERNAME'),env('DB_PASSWORD'),env('DB_DATABASE'));
-        $info['database'] = [
-            'MYSQL_VERSION' => mysqli_get_server_info($con),
-            'ALLOW_PERSISTENT' => @get_cfg_var("mysql.allow_persistent")?"是 ":"否",
-            'MAX_LINKS' => @get_cfg_var("mysql.max_links")==-1 ? "不限" : @get_cfg_var("mysql.max_links")
-        ];
-        exec("wmic LOGICALDISK get name,Description,filesystem,size,freespace",$info['disk']);
-        // var_dump($admin);
-        // var_dump($info);
-        // exit;
+        $info = $this->sys_info();
         $this->log(__CLASS__, __FUNCTION__, $request, "查看 首页");
         return view('admin/index/index', ['info'=>$info,'admin'=>$admin]);
+    }
+
+    /**
+     * 主页
+     */
+    public function get_index(Request $request){
+        $admin = session('sys_admin');
+        // $admin['address'] = $admin['lastAddress']['city'].'-'.$admin['lastAddress']['county'].'-'.$admin['lastAddress']['isp'].'-'.$admin['lastAddress']['ip'];
+        $info = $this->sys_info();
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 首页");
+        return view('admin/index/dashboard', ['info'=>$info,'admin'=>$admin]);
     }
 
     /**
@@ -148,5 +143,29 @@ class SysController extends BaseController
     public function getMessage(){
         return '200';
     }
-
+    
+    /**
+    * 系统
+    */
+    private function sys_info(){
+        $info['sys'] = [
+            'PORT' => $_SERVER['SERVER_PORT'],
+            'PHP_OS' => php_uname(),
+            'SERVER_PROTOCOL' => $_SERVER['SERVER_PROTOCOL'],
+            'SERVER_SOFTWARE' => $_SERVER['HTTP_ACCEPT_LANGUAGE'],
+            'SERVER_INFO' => $_SERVER ['SERVER_SOFTWARE'],
+            'FILE_UPLOAD_MAX_SIZE' => get_cfg_var ("upload_max_filesize")?get_cfg_var ("upload_max_filesize"):"不允许上传附件",
+        ];
+        $con = mysqli_connect(env('DB_HOST'),env('DB_USERNAME'),env('DB_PASSWORD'),env('DB_DATABASE'));
+        $info['database'] = [
+            'MYSQL_VERSION' => mysqli_get_server_info($con),
+            'ALLOW_PERSISTENT' => @get_cfg_var("mysql.allow_persistent")?"是 ":"否",
+            'MAX_LINKS' => @get_cfg_var("mysql.max_links")==-1 ? "不限" : @get_cfg_var("mysql.max_links")
+        ];
+        exec("wmic LOGICALDISK get name,Description,filesystem,size,freespace",$info['disk']);
+        // var_dump($admin);
+        // var_dump($info);
+        // exit;
+        return $info;
+    }
 }

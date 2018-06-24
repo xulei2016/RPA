@@ -12,7 +12,9 @@ $(function(){
     function init(){
         bindEvent();
         init_pagination();
+        init_date();
         selecteSort(selectInfo, render);
+        selectePageNum(selectInfo, render);
     }
 
     /*
@@ -128,6 +130,7 @@ $(function(){
         selectInfo.from_add_time = selectObj.find('.search-group #startTime').val();
         selectInfo.to_add_time = selectObj.find('.search-group #endTime').val();
         selectInfo.sort = selectObj.find('a.selectsort').attr('type');
+        selectInfo.num = selectObj.find('.selectnum').val();
         return selectInfo;
     }
 
