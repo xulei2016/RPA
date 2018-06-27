@@ -57,8 +57,8 @@ class StatisticsController extends BaseController
     //rpa获取数据
     public function getData(Request $request){
         //按天数统计
-        $day = $request->day ? $request->day : 180 ;
-        $task = $request->task ? $request->task : 'taskdistribution' ;
+        $day = $request->day ? $request->day : 7 ;
+        $task = $request->task ? $request->task : 'zwtx' ;
         $time = date('Y-m-d h:i:s',strtotime('-{$day} day'));
         $condition = [['time','>=',$time],['name','=',$task]];
         $data = $this->model->findAllBy($condition);

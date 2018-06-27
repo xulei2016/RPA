@@ -18,6 +18,25 @@
         <canvas id="charts"></canvas>
     </div>
     <div class="chart col-lg-12">
+        <div class="title text-center">RPA数据统计图表</div>
+        <div class="taskType">
+            <select name="task" id="taskType" class="btn btn-default btn-sm">
+                <option value="taskdistribution">发布任务</option>
+                <option value="zwtx" selected>朝闻天下</option>
+                <option value="IDidentification" selected>身份证识别</option>
+                <option value="SupervisionCFA">期货业协会失信截图</option>
+                <option value="SupervisionSF">证券监督失信截图	</option>
+                <option value="InvestorPassword">投资者密码</option>
+                <option value="CustomerGroupings">客户分组</option>
+                <option value="sdxTestWirte">适当性录入</option>
+                <option value="DownloadPDF">云开户中心客户PDF下载</option>
+            </select>
+            <select name="days" id="taskDays" class="btn btn-default btn-sm">
+                <option value="7" selected>7天</option>
+                <option value="15">15天</option>
+                <option value="30">30天</option>
+            </select>
+        </div>
         <canvas id="canvas"></canvas>
     </div>
 
@@ -26,12 +45,12 @@
 
 <script type="text/javascript" src="{{URL::asset('/js/admin/rpa/statistics/utils.js')}}"></script>
 	<script>
-		var config = () => {
-            let labels = '';
-            let data1 = '';
-            let data2 = '';
-            let task = 'taskdistribution';
-            let day = 180;
+        let mylabels = '';
+        let mydata1 = '';
+        let mydata2 = '';
+        let setChartConfig = function(){
+            let task = $('#container .inner-content #repository .chart .taskType select[name="task"]').val();
+            let day = $('#container .inner-content #repository .chart .taskType select[name="days"]').val();
             $.ajax({
                 async:false,
                 url:"/admin/rpa_log/getData",
@@ -40,21 +59,22 @@
                 dataType:'json',
                 success:function(json){
                     for(let i in json){
-                        labels = labels+i+',';
+                        mylabels = mylabels+i+',';
                         if(json[i].hasOwnProperty('success')){
-                            data1+=json[i]['success'].length+',';
+                            mydata1+=json[i]['success'].length+',';
                         }else{
-                            data1+='0,';
+                            mydata1+='0,';
                         }
                         if(json[i].hasOwnProperty('fail')){
-                            data2+=json[i]['fail'].length+',';
+                            mydata2+=json[i]['fail'].length+',';
                         }else{
-                            data2+='0,';
+                            mydata2+='0,';
                         }
                     }
                 }
             });
-            return {    
+        }
+		var config = {
 			type: 'line',
 			data: {
 				labels: labels.split(','),
@@ -63,20 +83,20 @@
                     show: true, 
 					borderColor: window.chartColors.blue,
 					backgroundColor: window.chartColors.blue,
-					data: data1.split(','),
+					data: mydata1.split(','),
 					fill: false,
 				}, {
 					label: '失败',
 					borderColor: window.chartColors.red,
 					backgroundColor: window.chartColors.red,
-					data: data2.split(','),
+					data: mydata2.split(','),
                     fill: false,
                     }]
                 },
                 options: {
                     responsive: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'RPA数据统计图表'
                     },
                     tooltips: {
@@ -115,7 +135,6 @@
                         }]
                     }
                 }
-            }
 		};
 
         var randomScalingFactor = function() {
@@ -231,7 +250,8 @@
 					}
 				});
 			}
-		});
+        });
+        setChartConfig();
 
         var trueorfail = document.getElementById("trueorfail");
         window.rpa_trueorfail = new Chart(trueorfail, trueorfail_config);
@@ -239,5 +259,21 @@
         window.myRadar = new Chart(document.getElementById('charts'), charts);
 
         var ctx = document.getElementById('canvas').getContext('2d');
-        window.myLine = new Chart(ctx, config());
+        window.myLine = new Chart(ctx, config);
+
+        //监听按钮选择
+        document.getElementById('taskType').addEventListener('change', function() {
+            setChartConfig();
+			window.myLine.update();
+        });
+        document.getElementById('taskDays').addEventListener('change', function() {
+			// config.data.datasets.forEach(function(dataset) {
+			// 	dataset.data = dataset.data.map(function() {
+			// 		return randomScalingFactor();
+			// 	});
+            //     console.log(dataset.data);
+            // });
+            setChartConfig();
+			window.myLine.update();
+		});
 	</script>
