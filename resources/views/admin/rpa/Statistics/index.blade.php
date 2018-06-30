@@ -45,10 +45,10 @@
 
 <script type="text/javascript" src="{{URL::asset('/js/admin/rpa/statistics/utils.js')}}"></script>
 	<script>
-        let mylabels = '';
-        let mydata1 = '';
-        let mydata2 = '';
-        let setChartConfig = function(){
+        var setChartConfig = () => {
+            let mylabels = '';
+            let mydata1 = '';
+            let mydata2 = '';
             let task = $('#container .inner-content #repository .chart .taskType select[name="task"]').val();
             let day = $('#container .inner-content #repository .chart .taskType select[name="days"]').val();
             $.ajax({
@@ -71,25 +71,33 @@
                             mydata2+='0,';
                         }
                     }
+                    config.data.labels = mylabels.split(',');
+                    config.data.datasets.forEach(function(dataset) {
+                        if(dataset.label == '成功'){
+                            dataset.data = mydata1.split(',');
+                        }else{
+                            dataset.data = mydata2.split(',');
+                        }
+                    });
                 }
             });
         }
 		var config = {
 			type: 'line',
 			data: {
-				labels: labels.split(','),
+				labels: '',
 				datasets: [{
 					label: '成功',
                     show: true, 
 					borderColor: window.chartColors.blue,
 					backgroundColor: window.chartColors.blue,
-					data: mydata1.split(','),
+					data: '',
 					fill: false,
 				}, {
 					label: '失败',
 					borderColor: window.chartColors.red,
 					backgroundColor: window.chartColors.red,
-					data: mydata2.split(','),
+					data: '',
                     fill: false,
                     }]
                 },
@@ -148,8 +156,7 @@
 				datasets: [{
 					data: [
 						{{ $info['success']['data'] }},
-						{{ $info['fail']['data'] }},
-						{{ $info['unknown'] }}
+						{{ $info['fail']['data'] }}
 					],
 					backgroundColor: [
 						window.chartColors.blue,
@@ -160,8 +167,7 @@
 				}],
 				labels: [
 					'成功',
-					'失败',
-					'未知',
+					'失败'
 				]
 			},
 			options: {
@@ -267,12 +273,6 @@
 			window.myLine.update();
         });
         document.getElementById('taskDays').addEventListener('change', function() {
-			// config.data.datasets.forEach(function(dataset) {
-			// 	dataset.data = dataset.data.map(function() {
-			// 		return randomScalingFactor();
-			// 	});
-            //     console.log(dataset.data);
-            // });
             setChartConfig();
 			window.myLine.update();
 		});

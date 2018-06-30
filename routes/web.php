@@ -62,10 +62,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             //角色管理
             Route::post('/role_manage', 'RoleController@index');
             Route::post('/role_manage/add_role', 'RoleController@add');
-            Route::post('/role_manage/edit', 'RoleController@edit');
+            Route::post('/role_manage/edit/{id?}', 'RoleController@edit');
             Route::post('/role_manage/typeChange', 'RoleController@typeChange');
             Route::post('/role_manage/grantRole', 'RoleController@grantRole');
-            Route::post('/role_manage/postPersission', 'RoleController@postPersission');
+            Route::post('/role_manage/getPersission', 'RoleController@getPersission');
             Route::post('/role_manage/insert', 'RoleController@insert');
             Route::post('/role_manage/update', 'RoleController@update');
             Route::post('/role_manage/delete', 'RoleController@delete');
@@ -85,7 +85,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
 
             //管理员管理
             Route::post('/admin_manage/add', 'AdminController@add');
-            Route::post('/admin_manage/edit', 'AdminController@edit');
+            Route::post('/admin_manage/edit/{id?}', 'AdminController@edit');
             Route::post('/admin_manage/typeChange', 'AdminController@typeChange');
             Route::post('/admin_manage/insert', 'AdminController@insert');
             Route::post('/admin_manage/update', 'AdminController@update');
@@ -196,6 +196,17 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             Route::post('/rpa_questionnaire/deleteAll','QuestionnaireController@deleteAll');
             Route::post('/rpa_questionnaire/rpa_list', 'QuestionnaireController@pagination');
             Route::post('/rpa_questionnaire/insert_immed','QuestionnaireController@insertImmedtasks');
+            //客户开户视频收集
+            Route::post('/rpa_rtc_collect','RTCController@index');
+            Route::post('/rpa_rtc_collect/add','RTCController@add');
+            Route::post('/rpa_rtc_collect/edit/{id}','RTCController@edit');
+            Route::post('/rpa_rtc_collect/immedtask','RTCController@immedtasks');
+            Route::post('/rpa_rtc_collect/insert','RTCController@insert');
+            Route::post('/rpa_rtc_collect/update','RTCController@update');
+            Route::post('/rpa_rtc_collect/delete','RTCController@delete');
+            Route::post('/rpa_rtc_collect/deleteAll','RTCController@deleteAll');
+            Route::post('/rpa_rtc_collect/rpa_list', 'RTCController@pagination');
+            Route::post('/rpa_rtc_collect/insert_immed','RTCController@insertImmedtasks');
             //数据统计
             Route::post('/rpa_log','StatisticsController@rpa_log');
             Route::post('/rpa_log/log','StatisticsController@pagination');

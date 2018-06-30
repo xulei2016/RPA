@@ -196,9 +196,10 @@ var refresh = () => {
     });
 }
 
-function operation(_this) {
+//弹出窗口
+function operation(_this, id) {
     let url = _this.attr('url');
-    $('#Modal .modal-content .modal-body').text('').load(url,{limit: 25});
+    $('#Modal .modal-content .modal-body').text('').load(url,{limit: 25, id: id});
     $('#Modal').modal('show');
 }
 

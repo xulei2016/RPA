@@ -20,7 +20,7 @@
         ]); ?>
     </script>
     <style type="text/css">
-        .navbar .container{background-color:{{ session('sys_admin')['theme'] }}}
-        .navbar .sidebar .sidebar-wrapper .sidebar-content .sidebar-nav.sidebar-active ul .nav-item.active{border-bottom:1px solid {{ session('sys_admin')['theme'] }}}
-        .navbar .sidebar .sidebar-wrapper .sidebar-content .sidebar-nav .sidebar-title:hover{background: {{session('sys_admin')['theme']}};}
+        #container .inner-content .navbar{background-color:{{ session('sys_admin')['theme'] }}}
+        .sidebar .sidebar-wrapper .sidebar-content .sidebar-nav.sidebar-active ul .nav-item.active{border-bottom:1px solid {{ session('sys_admin')['theme'] }}}
+        .sidebar .sidebar-wrapper .sidebar-content .sidebar-nav .sidebar-title:hover{background: {{session('sys_admin')['theme']}};}
     </style>

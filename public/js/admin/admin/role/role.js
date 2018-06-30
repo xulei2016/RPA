@@ -274,8 +274,8 @@ $(function(){
                         +((1==row.super) ? '<a class="btn btn-primary btn-sm member" href="#" data_id="'+id+'">成员管理</a> ':
                         (row.type ? '<a class="btn btn-danger btn-sm type" type="'+row.type+'" id="'+id+'">禁用</a> ':'<a class="btn btn-success btn-sm type" type="'+row.type+'" id="'+id+'">启用</a> ')
                         +'<a class="btn btn-primary btn-sm permission" href="#" data_id="'+id+'">权限设置</a> '
-                        +'<a class="btn btn-primary btn-sm member" href="#" data_id="'+id+'" url="/admin/admin_manage/"'+id+' onclick="operation($(this))">成员管理</a> '
-                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="/admin/edit/"'+id+' onclick="operation($(this))">修改</a> '
+                        +'<a class="btn btn-primary btn-sm member" href="#" data_id="'+id+'" url="/admin/admin_manage/'+id+'" onclick="pjaxContent($(this))">成员管理</a> '
+                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="/admin/role_manage/edit/'+id+'" onclick="operation($(this))">修改</a> '
                         +'<a class="btn btn-danger btn-sm delete" href="#" data_id="'+id+'">删除</a>'
                         +'</td>')
                         +'</tr>';

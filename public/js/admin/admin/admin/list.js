@@ -198,7 +198,7 @@ $(function(){
                         +'<td>'+row.created_at+'</td>'
                         +'<td>'
                         +(row.type ? '<a class="btn btn-danger btn-sm type" type="'+row.type+'" id="'+id+'">禁用</a> ':'<a class="btn btn-success btn-sm type" type="'+row.type+'" id="'+id+'">启用</a> ')
-                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="admin/banner/edit_banner/"'+id+'" onclick="operation($(this));">修改</a> '
+                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="admin/admin/edit/'+id+'" onclick="operation($(this));">修改</a> '
                         +'<a class="btn btn-danger btn-sm delete" href="#" data_id="'+id+'">删除</a>'
                         +'</td>'
                         +'</tr>';
