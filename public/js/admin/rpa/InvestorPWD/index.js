@@ -26,7 +26,7 @@ $(function(){
         	}else{
 	            myConfirmModal("确定要批量删除资讯吗？",function(){
 		            $.ajax({
-		                url:"/admin/rpa_investorPWD/deleteAll",
+		                url:"/admin/rpa_rtc_collect/deleteAll",
 		                type:"post",
 		                data:{"ids":ids},
 		                dataType:"json",
@@ -61,7 +61,7 @@ $(function(){
         var ids = $(this).attr("data_id");
         myConfirmModal("确定要删除该资讯吗？",function(){
            $.ajax({
-               url:"/admin/rpa_investorPWD/delete",
+               url:"/admin/rpa_rtc_collect/delete",
                type:"post",
                data:{"id":ids},
                dataType:"json",
@@ -158,7 +158,7 @@ $(function(){
                         +'<td>'+update_at+'</td>'
                         +'<td>'
                         +'<a class="btn btn-primary btn-sm view" href="#" data_id="'+id+'" data='+row.jsondata+'>参数</a> '
-                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="/admin/rpa_investorPWD/edit/'+id+'" onclick="operation($(this))">修改</a> '
+                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="/admin/rpa_rtc_collect/edit/'+id+'" onclick="operation($(this))">修改</a> '
                         +'<a class="btn btn-danger btn-sm delete" href="#" data_id="'+id+'">删除</a>'
                         +'</td>'
                         +'</tr>';

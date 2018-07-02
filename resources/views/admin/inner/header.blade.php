@@ -12,6 +12,7 @@
     <link href="{{URL::asset('/include/nprogress/nprogress.css')}}" rel="stylesheet">
     <link href="{{URL::asset('/include/iCheck/skins/minimal/blue.css')}}" rel="stylesheet">
     <script src="{{URL::asset('/include/jquery/jquery-3.3.1.min.js')}}"></script>
+    <script src="{{URL::asset('/js/admin/syslimit.js')}}"></script>
 
     <!-- Scripts -->
     <script>
