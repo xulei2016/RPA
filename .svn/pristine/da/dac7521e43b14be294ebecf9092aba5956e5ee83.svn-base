@@ -1,0 +1,122 @@
+<?php
+
+namespace App\Http\Controllers\admin\rpa;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Rpa\ReleaseTasksRepository as ReleaseTasks;
+use App\Repositories\Models\Admin\Rpa\ImmedTasksRepository as ImmedTasks;
+use App\Repositories\Models\Admin\Rpa\TasksRepositoryRepository as TasksRepository;
+use App\Repositories\Models\Admin\Rpa\TaskcollectionsRepository as Taskcollections;
+
+/**
+ * rpa 客户分组控制器
+ * @author hsu lay
+ * @link www.haqh.com
+ * @since 2018/05/15
+ */
+class CustomerGroupingController extends BaseController
+{
+    private $model;
+    private $app;
+    private $tasks;
+    private $collect;
+
+    //__CONSTRUCT
+    public function __CONSTRUCT(ReleaseTasks $model,ImmedTasks $app,TasksRepository $tasks,Taskcollections $collect)
+    {
+        parent::__construct();
+        $this->model = $model;
+        $this->app = $app;
+        $this->tasks = $tasks;
+        $this->collect = $collect;
+    }
+
+    //RPA list
+    public function index(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 客户分组 任务中心");
+        return view('admin/rpa/CustomerGrouping/index');
+    }
+
+    //RPA add
+    public function add(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "添加 客户分组 任务");
+        return view('admin/rpa/CustomerGrouping/add');
+    }
+
+    //RPA edit
+    public function edit(Request $request){
+        $id = $request->id;
+        $info = $this->tasks->find($id);
+        $info = $info['data'];
+        $info['week'] = explode(',', $info['week']);
+        $info['data'] = json_decode($info['jsondata'],true);
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 客户分组 任务");
+        return view('admin/rpa/CustomerGrouping/edit',['info'=>$info]);
+    }
+
+    //RPA insert
+    public function insert(Request $request){
+        $data = $this->get_params($request, ['description','date','week','time','jsondata']);
+        $data['name'] = 'CustomerGroupings';
+        $data['week'] = isset($data['week']) ? implode(',',$data['week']) :'';
+        $data['created_at'] = $this->getTime();
+        $this->log(__CLASS__, __FUNCTION__, $request, "插入 客户分组 信息");
+        $this->immedtask();
+        $result = $this->tasks->create($data);
+        $data['tid'] = $result['data']['id'];
+        return $this->model->create($data);
+    }
+
+    //RPA update
+    public function update(Request $request){
+        $data = $this->get_params($request, ['id','description','date','week','time','jsondata'],false);
+        $data['name'] = 'CustomerGroupings';
+        $data['week'] = $data['week'] ? implode(',',$data['week']) :'';
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 客户分组 信息");
+        $this->immedtask();
+        //查询rpa任务表tid
+        $this->model->update($data,$data['id'],'tid');
+        return $this->tasks->update($data,$data['id']);
+    }
+
+    //delete RPA
+    public function delete(Request $request){
+        $id = $request->id;
+        $this->log(__CLASS__, __FUNCTION__, $request, "删除 客户分组");
+        $this->immedtask();
+        $this->tasks->delete($id);
+        return $this->model->deleteBy([['tid','=',$id]]);
+    }
+    
+    //delete_all
+    public function deleteAll(Request $request){
+        $ids = $request->ids;
+        $this->log(__CLASS__, __FUNCTION__, $request, "批量删除 客户分组 列表");
+        $this->immedtask();
+        $this->tasks->delete(explode(',',$ids));
+        return $this->model->where([['tid','in',explode(',',$ids)]])->delete();
+    }
+
+    //pagenation
+    public function pagination(Request $request){
+        $condition = [['name','=','CustomerGroupings']];
+        $sort = ['id','asc'];
+        return $this->tasks->paginate($condition, $sort, 10);
+    }
+
+    //发布任务
+    public function immedtask(){
+        $data = ['name'=>'taskdistribution','jsondata'=>'{"name":"CustomerGroupings"}'];
+        $this->app->create($data);
+    }
+
+    //立即发布任务
+    public function immedtasks(Request $request){
+        $id = $request->id;
+        $task = $this->tasks->find($id);
+        $task = $task['data']->toArray();
+        $data = ['name'=>$task['name'],'jsondata'=>$task['jsondata'],'tid'=>$task['id']];
+        return $this->app->create($data);
+    }
+}

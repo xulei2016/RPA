@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Base;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Base\MenuRepository as Menu;
+use App\Repositories\Models\Admin\Base\MenuTopRepository as MenuTop;
+
+/**
+ * NavController
+ * @author hsu lay
+ * @link http://blog.mihuyu.top
+ * @copyright easyweb
+ * @version 1.0 2018.02
+ */
+class NavController extends BaseController
+{
+    private $model;
+    private $menuTop;
+
+    //__CONSTRUCT
+    public function __CONSTRUCT(Menu $model, MenuTop $MenuTop)
+    {
+        parent::__construct();
+        $this->model = $model;
+        $this->menuTop = $MenuTop;
+    }
+
+    /**
+     * iconfont 加载
+     */
+    public function icon_list(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 图标 列表");
+        return view('admin/nav/icon');
+    }
+
+    /**
+     * 导航栏加载
+     */
+    public function bar_list(Request $request){
+        $condition = [];
+        $sort = ['sort', 'asc'];
+
+        $top_menu = $this->menuTop->findAllBy($condition, $sort, ['*']);
+        $menus = $this->model->findAllBy($condition, $sort, ['*']);
+        $top_menu['data'] = json_decode($top_menu['data'],true);
+        $menus['data'] = json_decode($menus['data'],true);
+        
+        foreach($top_menu['data'] as $k => &$top){
+            $top['menus'] = [];
+            foreach($menus['data']  as $menu){
+                if($menu['team_id'] == $top['id']){
+                    array_push($top['menus'], $menu);
+                }
+            }
+        }
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 导航 列表");
+        return view('admin/nav/barlist', ['menus' => $top_menu['data']]);
+    }
+
+    /**
+     * 导航栏排序修改
+     * @param Request $request
+     * @return Response
+     */
+    public function update_nav(Request $request){
+        $data = $request->all();
+        $where = [['id','>',$data['id']]];
+        $result = $this->model->update($data,$data['id']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 导航 排序");
+        return $this->model->increment($where, 'sort');
+    }
+
+    /**
+     * 顶级导航栏排序修改
+     * @param Request $request
+     * @return Response
+     */
+    public function update_top_nav(Request $request){
+        $data = $request->all();
+        $where = [['id','>',$data['id']],['team_id',$data['team_id']]];
+        $result = $this->menuTop->update($data,$data['id']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 顶级导航 排序");
+        return $this->menuTop->increment($where, 'sort');
+    }
+
+    /**
+     * 导航栏修改
+     * @param Request $request
+     * @return Response
+     */
+    public function update_nav_menu(Request $request){
+        $data = $request->all();
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 导航栏 信息");
+        return $result = $this->model->update($data,$data['id']);
+    }
+
+    /**
+     * 新增导航栏
+     * @param Request $request
+     * @return Response
+     */
+    public function insert_nav(Request $request){
+
+    }
+}

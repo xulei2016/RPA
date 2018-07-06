@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Middleware\Admin;
+
+use Closure;
+
+class AuthAdmin
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        if (auth()->guard('admin')->guest()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response('Unauthorized.', 401);
+            } else {
+                return redirect()->guest('admin/login');
+            }
+        }
+        return $next($request);
+    }
+
+
+    /**
+	 * 获取ip所属信息
+	 * @param string $ip
+	 * @return mixed
+	 */
+	protected static function getAreaByIp($ip){
+		$taobaoUrl = "http://ip.taobao.com/service/getIpInfo.php?ip={$ip}";
+        
+        $rawResult = file_get_contents($taobaoUrl);
+		$result = json_decode($rawResult);
+		$result = (array)$result;
+		$result = (array)$result['data'];
+		return $result;
+	}
+}

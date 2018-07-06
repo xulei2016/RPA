@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Base;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Base\SysConfigRepository as config;
+use App\Repositories\Models\Admin\Base\UserHeadImgRepository as UserHeadImg;
+
+
+/**
+ * 系统管理
+ * @since 2018/2
+ * @author hus lay
+ * 
+ */
+class SysController extends BaseController
+{
+    private $model;
+    private $img;
+
+    //__CONSTRUCT
+    public function __CONSTRUCT(config $model, UserHeadImg $img)
+    {
+        parent::__construct();
+        $this->model = $model;
+        $this->img = $img;
+    }
+
+    /**
+     * 主页
+     */
+    public function index(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 首页");
+        return view('admin/index/index');
+    }
+
+    /**
+     * 系统管理
+     */
+    public function sysConfig(Request $request){
+        $condition = [['type','<>','hidden']];
+        $config = $this->model->findAllBy($condition,['sort', 'asc']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "系统管理页面");
+        return view('admin/sys/config/list',['config'=>$config['data']]);
+    }
+
+    /**
+     * 头像列表
+     */
+    public function headImgList(Request $request){
+        return $this->img->all();
+    }
+
+    /**
+     * 修改系统管理
+     */
+    public function update(Request $request){
+        $data = $request->all();
+        //是否重新上传图片
+        if($request->logo){
+            $thumb = $this->model->utilUploadPhotoJust('logo', 'images/common/logo/',120,120);
+            if(!$thumb){
+                return $this->ajax_return('500', '图片保存失败！');
+            }
+            $data['logo'] = $thumb;
+            $this->unlinkImg($request->prevurl);
+        }
+        foreach($data as $k => $val){
+            $this->model->update(['item_value'=>$val], $k, 'item_key');
+        }
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改系统设置");
+        return $this->ajax_return(200, '更新成功！');
+    }
+
+    /**
+     * 上传头像
+     */
+    public function addImg(Request $request){
+        if($request->imgUrl){
+            $thumb = $this->img->utilUploadPhoto('imgUrl', 'images/admin/headImg/',120,120);
+            if(!$thumb){
+                return $this->ajax_return('500', '图片保存失败！',$thumb);
+            }
+            $data['url'] = $thumb['url'];
+            $data['thumb'] = $thumb['thumb'];
+        }
+        $this->log(__CLASS__, __FUNCTION__, $request, "上传头像");
+        return $this->img->create($data);
+    }
+
+    //delete one
+    public function del_img(Request $request){
+        $id = $request->id;
+        $this->log(__CLASS__, __FUNCTION__, $request, "删除 头像 信息");
+        return $this->img->delete($id);
+    }
+
+    /**
+     * 清除缓存
+     */
+    public function clean_cache(){
+        if($this->del_cache('sys_info') && $this->del_cache('sys_admin')){
+            return $this->ajax_return(200, '缓存清除成功！');
+        }else{
+            return $this->ajax_return(500, '缓存清除失败！请联系管理员处理');
+        };
+    }
+
+    /**
+     * 控制面板
+     */
+    public function dashboard(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 控制面板");
+        return view('admin/admin/admin/index');
+    }
+
+    /**
+     * 未知路由
+     */
+    public function notAllow(){
+        return view('errors/noAllow');
+    }
+
+    /**
+     * 获取消息推送
+     */
+    public function getMessage(){
+        return '200';
+    }
+
+}

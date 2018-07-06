@@ -1,0 +1,75 @@
+@extends('admin.inner.app')
+
+@section('content')
+<div class="inner-content">
+    @include('admin.inner.breadBar')
+    <div class="inner-section">
+        <div id="content">
+            <form action="#" method="post" id="myForm" enctype="multipart/form-data" novalidate="novalidate">
+                <table class="table table-striped table-hover table-bordered table-base">
+                    <tbody>
+                    <tr>
+                        <td class="td1"><label><span class="must-tag">*</span>名称</label></td>
+                        <td class="td2"><input type="text" class="form-control" id="name" value="{{ $data->name }}" name="name" placeholder="幻灯片名称"></td>
+                        <td class="td3"></td>
+                    </tr>
+
+                    <tr>
+                        <td><label for="imgurl"><span class="must-tag">*</span>图片上传</label></td>
+                        <td>
+                            <input class="imgurl form-control" accept="image/*" title="支持jpg、jpeg、gif、png格式，文件小于5M" tabindex="3" type="file" id="imgurl" name="imgurl" size="3">
+                            <img class="lightbox" src="{{$data->image}}" width="40px" />*建议尺寸：640*350px
+                            <input type="hidden" name="prevurl" value="{{$data->thumb}}">
+                            <input type="hidden" name="imgFlag" value="0" id="imgFlag">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><label for="url"><span class="must-tag">&nbsp;&nbsp;</span>链接地址</label></td>
+                        <td><input type="text" class="form-control" name="url" id="url" value="{{ $data->url }}" placeholder="如:http://www.×××××.com"></td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+                        <td><label><span class="must-tag">&nbsp;&nbsp;</span>打开方式</label></td>
+                        <td>
+                            <label> <input type="radio" name="type" value="1" @if ($data->type == 1) checked @endif>本页刷新</label>
+                            <label> <input type="radio" name="type" value="0" @if ($data->type == 0) checked @endif>新开窗口</label>
+
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><label for="sort"><span class="must-tag">&nbsp;&nbsp;</span>排序系数</label></td>
+                        <td><input type="text" class="form-control" name="sort" id="sort" placeholder="排序系数" value="{{$data->sort}}"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="hidden" name="id" value="{{$data->id}}">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-md" id="save">提交</button>
+                            <a class="btn btn-default btn-md" href="javascript:window.history.back();">返回</a>
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+
+@section('script-top')
+@endsection
+
+@section('script-foot')
+<script src="{{URL::asset('/include/jquery-form/jquery.form.js')}}"></script>
+<script src="{{URL::asset('/include/jquery-validate/jquery.validate.min.js')}}"></script>
+<script src="{{URL::asset('/include/jquery-validate/localization/messages_zh.min.js')}}"></script>
+<script src="{{URL::asset('/js/admin/site/banner/editBanner.js')}}"></script>
+@endsection

@@ -35,4 +35,3 @@
 
 <script type="text/javascript" src="{{URL::asset('/include/jquery-bootpag/lib/jquery.bootpag.min.js')}}"></script>
 <script type="text/javascript" src="{{URL::asset('/js/admin/sys/error/error_log.js')}}"></script>
-<script type="text/javascript" src="{{URL::asset('/js/admin/main.js')}}"></script>

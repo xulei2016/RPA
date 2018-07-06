@@ -1,0 +1,427 @@
+<?php
+
+namespace App\Http\Controllers\base;
+
+use Illuminate\Http\Request;
+use App\Model\Admin\Base\sysAdmin;
+use App\Model\Admin\role\role;
+use App\model\admin\base\sysTeam;
+use App\model\admin\base\sysMenu;
+use App\model\admin\base\sysConfig;
+use App\model\admin\base\sysMenuTop;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+
+/**
+ * 基础控制器
+ * @author hsu lay
+ * @since 2018/2
+ */
+class BaseController extends Controller
+{
+    //session变量
+    protected $sys_info;
+
+    //construct
+    public function __CONSTRUCT(){
+        $this->base_memcache();
+    }
+
+    //------------------系统session管理-----------------
+
+    //系统session判断
+    public function base_memcache(){
+        if(session()->has('sys_admin')){
+            if (!session()->has('sys_info')) {
+                //存入session
+                $sys_info = $this->get_menu();
+                session(['sys_info' => $sys_info]);
+            }
+            $this->sys_info = session('sys_info');
+            $this->analysis_url();
+        }
+    }
+
+    //获取菜单
+    public function get_menu(){
+        dd(session('sys_admin'));
+        $id = session('sys_admin')['id'];//auth()->guard('admin')->user()->id;
+        $user = sysAdmin::find($id);
+        $top_menu = sysMenuTop::where('status', 1)
+                        ->orderBy('sort', 'asc')
+                        ->get()
+                        ->toArray();
+        $menus = sysMenu::where('status', 1)
+                        ->orderBy('sort', 'asc')
+                        ->get()
+                        ->toArray();
+        $config = sysConfig::get()
+                        ->toArray();
+
+        if(!$user->hasRole('super_admin')){
+            foreach($top_menu as $k => &$top){
+                if(!$user->can($top['alias'])){
+                    unset($top_menu[$k]);
+                    continue;
+                }
+                $top['menus'] = [];
+                foreach($menus as $menu){
+                    if($menu['team_id'] == $top['id']){
+                        if(!$user->can($menu['unique_name'])){
+                            continue;
+                        }
+                        array_push($top['menus'], $menu);
+                    }
+                }
+                if (empty($top['menus'])){unset($top_menu[$k]);};
+            }
+        }else{
+            foreach($top_menu as $k => &$top){
+                $top['menus'] = [];
+                foreach($menus as $menu){
+                    if($menu['team_id'] == $top['id']){
+                        array_push($top['menus'], $menu);
+                    }
+                }
+                if (empty($top['menus'])){unset($top_menu[$k]);};
+            }
+        }
+
+        return [
+            'sys_info' => 
+                [
+                'top_menu' => $top_menu,
+                'config' => $config,
+                'menus' => $menus
+                ]
+        ];
+    }
+
+    /**
+     * 地址分析
+     */
+    public function analysis_url(){
+        //获取网页地址
+        $url = $_SERVER['REQUEST_URI'];
+        $url = strpos($url,'?') ? substr($url,0,strpos($url,'?')) : $url ;
+        foreach (session('sys_info')['sys_info']['menus'] as $menu){
+            if(strpos($url, $menu['unique_name'])){
+                Cache::put('active_list', [
+                    'active_id' => $menu['team_id'], 
+                    'active_name' => $menu['name'],
+                    'active_unique_name' => $menu['unique_name'],
+                    'active_icon' => $menu['icon']
+                ], '30');
+                break;
+            }
+        }
+    }
+
+    /**
+     * 删除session
+     * flush 清除session并不管什么session键前缀，而是从session系统中移除所有数据，所以在使用这个方法时如果其他应用与本应用有共享session时需要格外注意。
+     */
+    public function del_cache($name = null){
+        if($name){
+            session()->forget($name);
+        }else{
+            session()->flush();
+        }
+        return true;
+    }
+
+    /**
+     * ajax返回值信息
+     * @return array [code 状态码 200/500/ info 提示信息 data 返回数据] 
+     */
+    public function ajax_return($code, $info = null, $data = []){
+        return array(
+            'code' => $code,
+            'info' => $info,
+            'data' => $data
+        );
+    }
+
+    /**
+     * 批接收方法
+     * @param $data string 
+     * @param $type int 是否允许为空 
+     * @param $default bool 默认值 
+     * @return array $result
+     */
+    public function get_params($request ,$param, $type = TRUE, $default = null){
+        $data = [];
+        if(!empty($param)){
+            if($type){
+                foreach($param as $val){
+                    if('' != $request->$val && null != $request->$val){
+                        $data[$val] = $request->$val;
+                    };
+                }
+            }else{
+                foreach($param as $val){
+                    if('' != $request->$val && null != $request->$val){
+                        $data[$val] = $request->$val;
+                    };
+                    $data[$val] = $request->$val;
+                }
+            }
+        }
+        return $data;
+    }
+    	
+	/**
+	 * 获取ip地址
+	 * @return stirng	
+	 */
+	public static function getRealIp(){
+		$ip=false;
+		if(!empty($_SERVER["HTTP_CLIENT_IP"])){
+			$ip = $_SERVER["HTTP_CLIENT_IP"];
+		}
+		if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			$ips = explode (", ", $_SERVER['HTTP_X_FORWARDED_FOR']);
+			if ($ip) { array_unshift($ips, $ip); $ip = FALSE; }
+			for ($i = 0; $i < count($ips); $i++) {
+				if (!eregi ("^(10|172\.16|192\.168)\.", $ips[$i])) {
+					$ip = $ips[$i];
+					break;
+				}
+			}
+		}
+		return ($ip ? $ip : $_SERVER['REMOTE_ADDR']);
+	}
+	
+	/**
+	 * 获取ip所属信息
+	 * @param string $ip
+	 * @return mixed
+	 */
+	public static function getAreaByIp($ip){
+		$taobaoUrl = "http://ip.taobao.com/service/getIpInfo.php?ip={$ip}";
+		//{"code":0,"data":{"country":"中国","country_id":"CN","area":"华东","area_id":"300000","region":"安徽省","region_id":"340000","city":"合肥市","city_id":"340100","county":"","county_id":"-1","isp":"电信","isp_id":"100017","ip":"114.97.7.229"}}
+        
+        $rawResult = file_get_contents($taobaoUrl);
+		$result = json_decode($rawResult);
+		$result = (array)$result;
+		$result = (array)$result['data'];
+		return $result;
+    }
+
+    /**
+	 * 判断是否是移动客户端
+	 * @return $isMobile
+	 */
+	public function isMobile() {
+        $data['isMobile'] = FALSE;
+        $data['userAgent'] = '';
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+		if (empty($user_agent)) {
+            $data['isMobile'] = false;
+		} else {
+            // 移动端UA关键字
+			$mobile_agents = array (
+                'Mobile',
+                'Android',
+                'Silk/',
+                'Kindle',
+                'BlackBerry',
+                'Opera Mini',
+                'Opera Mobi'
+			);
+			$data['isMobile'] = false;
+			foreach ($mobile_agents as $device) {
+                if (strpos($user_agent, $device) !== false) {
+                    $data['isMobile'] = true;
+					$data['userAgent'] = $user_agent;
+					break;
+				}
+			}
+            $data['userAgent'] = $this->get_browser();
+		}
+		return $data;
+    }
+    
+    /**
+     * 浏览器类型
+     * @return string $result
+     */
+    public function get_browser(){
+        if((false == strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')) && ( FALSE !== strpos($_SERVER['HTTP_USER_AGENT'], 'Trident'))){
+            return 'Internet Explorer 11.0';
+        }
+        $bro_array = [
+            'MSIE 10.0' => 'Internet Explorer 10.0',
+            'MSIE 9.0' => 'Internet Explorer 9.0',
+            'MSIE 8.0' => 'Internet Explorer 8.0',
+            'MSIE 7.0' => 'Internet Explorer 7.0',
+            'MSIE 6.0' => 'Internet Explorer 6.0',
+            'Edge' => 'Edge',
+            'Firefox' => 'Firefox',
+            'Chrome' => 'Chrome',
+            'Safari' => 'Safari',
+            'Opera' => 'Opera',
+            '360SE' => '360SE',
+            'MicroMessage' => 'MicroMessage',
+        ];
+        foreach($bro_array as $k=>$v){
+            if((TRUE == strpos($_SERVER['HTTP_USER_AGENT'],$k))){
+                return $v; break;
+            }
+        }
+        return 'idontknow';
+    }
+
+    /**
+	 * 生成GUID
+	 */
+	public static function guid() {		
+		if (function_exists ( 'com_create_guid' )) {
+			$guid= com_create_guid ();
+		} else {
+			mt_srand ( ( double ) microtime () * 10000 ); // optional for php 4.2.0 and up.
+			$charid = strtoupper ( md5 ( uniqid ( rand (), true ) ) );
+			$hyphen = chr ( 45 ); // "-"
+			$uuid = chr ( 123 ) . 			// "{"
+			substr ( $charid, 0, 8 ) . $hyphen . substr ( $charid, 8, 4 ) . $hyphen . substr ( $charid, 12, 4 ) . $hyphen . substr ( $charid, 16, 4 ) . $hyphen . substr ( $charid, 20, 12 ) . chr ( 125 ); // "}"
+			$guid=$uuid;			
+		}
+		return substr($guid, 1,36);
+	}
+	
+	/**
+	 * 获取当前时间
+	 * @return string time
+	 */
+	public static function getTime(){
+	    return date('Y-m-d H:i:s',time());
+    }
+    	
+	/**
+	 * 构造分页页面提交数据
+	 * @param object $controller
+	 * @param array $keyValueList array('name'=>'like','add_time'=>'>=','sort'=>'=')
+	 * @return array
+	 */
+	protected function getPagingList($data,$keyValueList){
+        $conditionList = array();
+        $value = '';
+		foreach ($keyValueList as $key=>$operator){
+            $value = $data[$key];
+			if(null != $value && '' != $value){
+				$dateKey = $this->isDateArea($key);
+				if($dateKey){//判断是否时间段
+					array_push($conditionList,  array($dateKey, $operator, $value));
+				}else{
+					array_push($conditionList,  array($key, $operator, $value));
+				}
+			}
+		}
+		return $conditionList;
+    }
+    	
+	/**
+	 * 判断是否是时间区域
+	 * @param string $key
+	 * @return boolean
+	 */
+	private function isDateArea($key){
+		$keyList = explode('_',$key);
+		if($keyList[0] == 'from' || $keyList[0] == 'to'){
+			unset($keyList[0]);
+			$newKey = implode('_',$keyList);
+			return $newKey;
+		}else{
+			return false;
+		}
+    }
+
+    /**
+     * 删除图片
+     * @param string url
+     * @return bool return
+     */
+    public function unlinkImg($url){
+        $url = '.'.$url;
+        if(file_exists($url)){
+            unlink($url);
+            return true;
+        }
+        return false;
+    }
+
+    
+    /**
+     * session管理员信息
+     * @return bool 
+     */
+    function authCacheInfo ($type = TRUE){
+        //更新登录信息
+        $admin_info = auth()->guard('admin')->user();
+        if(!$admin_info)
+            return;
+        $id = (int) $admin_info->id;
+        $admin = new \App\Model\Admin\Base\sysAdmin();
+        $info['lastIp'] = $this->getRealIp();
+        $info['lastTime'] = $this->getTime();
+        $info['isMobile'] = $this->isMobile()['isMobile'] ? 1 : 0 ;
+        $info['lastAgent'] = $_SERVER['HTTP_USER_AGENT'];
+        $info['lastAbbAgent'] = $this->isMobile()['userAgent'];
+        $info['lastAddress'] = json_encode($this->getAreaByIp($info['lastIp']));
+        if($type)
+            $admin::where('id', $id)->update($info);
+        
+        //头像、权限信息
+        $headImg = $admin->find($id)->headImg;
+
+        //快捷获取管理员信息可从此处添加 $admin_info->***
+        $info['id'] = $id;
+        $info['role'] = $admin_info->role;
+        $info['headImg'] = $headImg->thumb;
+        $info['name'] = $admin_info->name;
+        $info['email'] = $admin_info->email;
+        $info['lastAddress'] = json_decode($info['lastAddress'], true);
+        session(['sys_admin' => $info]);
+        return true;
+    }
+    
+    //------------------日志管理-----------------
+
+     /**
+     * log
+     * @param string $controller 控制器
+     * @param string $action 动作
+     * @param $request request
+	 * @param string $desc 描述
+     */
+    public function log($controller, $action, $request, $desc) {
+        $user_id = 0;
+        if(auth()->guard('admin')->check()) {
+            $user_id = (int) auth()->guard('admin')->user()->id;
+            $account = auth()->guard('admin')->user()->name;
+        }else{
+            $account = $request->name;
+        }
+        $request->session()->has('sys_admin') ? session('sys_admin') : $this->authCacheInfo(false) ;
+        $admin = session('sys_admin');
+
+        $admin['lastAbbAgent'] = $admin['lastAbbAgent'] ? $admin['lastAbbAgent'] : $this->isMobile()['userAgent'] ;
+        $admin['lastAddress'] = isset($admin['lastAddress']) ? $admin['lastAddress'] : json_decode(json_encode($this->getAreaByIp($request->ip())), true);
+
+        $log = new \App\Model\Admin\Base\sysLog();
+        $log->setAttribute('ip', $request->ip());
+        $log->setAttribute('controller', strrchr($controller, '\\'));
+        $log->setAttribute('action', $action);
+        $log->setAttribute('simple_desc', $desc);
+        $log->setAttribute('user_id', $user_id);
+        $log->setAttribute('account', $account);
+        $log->setAttribute('path', $request->path());
+        $log->setAttribute('method', $request->method());
+        $log->setAttribute('data', json_encode($request->all(), JSON_UNESCAPED_UNICODE));
+        $log->setAttribute('province', $admin['lastAddress']['country']);
+        $log->setAttribute('city', $admin['lastAddress']['city']);
+        $log->setAttribute('agent', $admin['lastAbbAgent']);
+        $log->setAttribute('add_time', $this->getTime());
+        $log->save();
+    }
+}

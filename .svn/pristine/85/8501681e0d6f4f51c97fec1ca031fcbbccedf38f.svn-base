@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Base;
+
+use App\model\admin\sysMenuTop;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Base\BaseController;
+
+/**
+ * SysController
+ */
+class SysController extends BaseController
+{
+
+    //construct
+    function __CONSTRUCT(){
+        parent::__construct();
+    }
+
+    /**
+     * 主页
+     */
+    public function index(){
+        return view('admin/index/index');
+    }
+
+    /**
+     * 清除缓存
+     */
+    public function delete_cache(){
+        if($this->delete_cache('sys_info')){
+            return true;
+        }else{
+            ajax_return(200, '缓存清除失败！请联系管理员处理');
+        };
+    }
+
+    /**
+     * 获取单一导航配置信息
+     */
+    public function getSysConfig(){
+        dd($model::all());
+    }
+
+    /**
+     * 获取全部导航配置信息
+     */
+    public function getAllSysConfig(){
+
+    }
+
+    /**
+     * 更新导航配置信息
+     */
+    public function updateSysConfig(){
+
+    }
+
+    /**
+     * 删除导航配置信息
+     */
+    public function delSysConfig(){
+
+    }
+}

@@ -43,7 +43,7 @@ $(function(){
      * 提交添加banner信息的表单配置
      */
     var  goodsFormOptions={
-        url:'/admin/role_manage/insert',
+        url:'/admin/sys_role_manage/insert',
         success:successResponse,
         error:errorResponse
     };

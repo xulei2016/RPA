@@ -1,0 +1,32 @@
+{
+    "name": "illuminate/Util",
+    "description": "The Illuminate util tools package.",
+    "license": "MIT",
+    "homepage": "https://blog.mihuyu.top",
+    "authors": [
+        {
+            "name": "Hsu Lay",
+            "email": "fatlay@foxmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Illuminate\\Util\\": ""
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "5.4-dev"
+        }
+    },
+    "suggest": {
+        "illuminate/database": "Required to use the database presence verifier (5.4.*)."
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev"
+}

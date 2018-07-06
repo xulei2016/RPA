@@ -119,7 +119,7 @@ $(function(){
      * 提交添加banner信息的表单配置
      */
     var  goodsFormOptions={
-        url:'/admin/admin_manage/edit_info',
+        url:'/admin/sys_admin_manage/edit_info',
         success:successResponse,
         error:errorResponse
     };

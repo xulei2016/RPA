@@ -46,7 +46,7 @@ $(function(){
     //异步加载头像
     function getImg(){
         $.ajax({
-            url: '/admin/sys_manage/getImg',
+            url: '/admin/sys_setting/getImg',
             type: 'POST',
             dataType:"json"
         }).then(function(json){
@@ -77,7 +77,7 @@ $(function(){
     //提交表单
     function addImg(){
         $.ajax({
-            url: '/admin/sys_manage/addImg',
+            url: '/admin/sys_setting/addImg',
             type: 'POST',
             data: new FormData($('#myForm #imgManageForm')[0]),
             processData: false,

@@ -29,7 +29,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             
             //清除缓存
             Route::post('/clean_cache', 'SysController@clean_cache');
-            Route::post('/postMessage', 'SysController@postMessage');
+            Route::post('/getMessage', 'SysController@getMessage');
             
             //图标库
             Route::post('/icon_list', 'NavController@icon_list');
@@ -42,70 +42,73 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             Route::post('/bar_list/insert_nav', 'NavController@insert_nav');
             
             //通知
-            Route::post('/message', 'MessageController@index');
+            Route::post('/sys_message_list', 'MessageController@index');
+            Route::post('/sys_history_message', 'MessageController@history_list');
+            Route::post('/sys_history_message/message_list', 'MessageController@history_pagination');
+            Route::post('/sys_message_list/message_list', 'MessageController@pagination');
             
             //操作日志
-            Route::post('/base_log', 'LogController@log_list');
-            Route::post('/base_log/log_list', 'LogController@log_pagination');
-            Route::post('/base_log/deleteAll', 'LogController@deleteAll');
-            Route::post('/base_log/delete', 'LogController@delete');
+            Route::post('/sys_base_log', 'LogController@log_list');
+            Route::post('/sys_base_log/log_list', 'LogController@log_pagination');
+            Route::post('/sys_base_log/deleteAll', 'LogController@deleteAll');
+            Route::post('/sys_base_log/delete', 'LogController@delete');
             
             //错误日志
-            Route::post('/error_log', 'ErrorLogController@log_list');
-            Route::post('/error_log/log_list', 'ErrorLogController@log_pagination');
-            Route::post('/error_log/deleteAll', 'ErrorLogController@deleteAll');
-            Route::post('/error_log/delete', 'ErrorLogController@delete');
+            Route::post('/sys_error_log', 'ErrorLogController@log_list');
+            Route::post('/sys_error_log/log_list', 'ErrorLogController@log_pagination');
+            Route::post('/sys_error_log/deleteAll', 'ErrorLogController@deleteAll');
+            Route::post('/sys_error_log/delete', 'ErrorLogController@delete');
             
             //控制面板
             // Route::post('/base_manage', 'SysController@dashboard');
 
             //角色管理
-            Route::post('/role_manage', 'RoleController@index');
-            Route::post('/role_manage/add_role', 'RoleController@add');
-            Route::post('/role_manage/edit/{id?}', 'RoleController@edit');
-            Route::post('/role_manage/typeChange', 'RoleController@typeChange');
-            Route::post('/role_manage/grantRole', 'RoleController@grantRole');
-            Route::post('/role_manage/getPersission', 'RoleController@getPersission');
-            Route::post('/role_manage/insert', 'RoleController@insert');
-            Route::post('/role_manage/update', 'RoleController@update');
-            Route::post('/role_manage/delete', 'RoleController@delete');
-            Route::post('/role_manage/deleteAll', 'RoleController@deleteAll');
-            Route::post('/role_manage/role_list', 'RoleController@pagination');
+            Route::post('/sys_role_manage', 'RoleController@index');
+            Route::post('/sys_role_manage/add_role', 'RoleController@add');
+            Route::post('/sys_role_manage/edit/{id?}', 'RoleController@edit');
+            Route::post('/sys_role_manage/typeChange', 'RoleController@typeChange');
+            Route::post('/sys_role_manage/grantRole', 'RoleController@grantRole');
+            Route::post('/sys_role_manage/getPersission', 'RoleController@getPersission');
+            Route::post('/sys_role_manage/insert', 'RoleController@insert');
+            Route::post('/sys_role_manage/update', 'RoleController@update');
+            Route::post('/sys_role_manage/delete', 'RoleController@delete');
+            Route::post('/sys_role_manage/deleteAll', 'RoleController@deleteAll');
+            Route::post('/sys_role_manage/role_list', 'RoleController@pagination');
 
             //权限管理
-            Route::post('/permission_manage', 'PermissionController@index');
-            Route::post('/permission_manage/add_role', 'PermissionController@add');
-            Route::post('/permission_manage/edit', 'PermissionController@edit');
-            Route::post('/permission_manage/typeChange', 'PermissionController@typeChange');
-            Route::post('/permission_manage/insert', 'PermissionController@insert');
-            Route::post('/permission_manage/update', 'PermissionController@update');
-            Route::post('/permission_manage/delete', 'PermissionController@delete');
-            Route::post('/permission_manage/deleteAll', 'PermissionController@deleteAll');
-            Route::post('/permission_manage/role_list', 'PermissionController@pagination');
+            Route::post('/sys_permission_manage', 'PermissionController@index');
+            Route::post('/sys_permission_manage/add_role', 'PermissionController@add');
+            Route::post('/sys_permission_manage/edit', 'PermissionController@edit');
+            Route::post('/sys_permission_manage/typeChange', 'PermissionController@typeChange');
+            Route::post('/sys_permission_manage/insert', 'PermissionController@insert');
+            Route::post('/sys_permission_manage/update', 'PermissionController@update');
+            Route::post('/sys_permission_manage/delete', 'PermissionController@delete');
+            Route::post('/sys_permission_manage/deleteAll', 'PermissionController@deleteAll');
+            Route::post('/sys_permission_manage/role_list', 'PermissionController@pagination');
 
             //管理员管理
-            Route::post('/admin_manage/add', 'AdminController@add');
-            Route::post('/admin_manage/edit/{id?}', 'AdminController@edit');
-            Route::post('/admin_manage/typeChange', 'AdminController@typeChange');
-            Route::post('/admin_manage/insert', 'AdminController@insert');
-            Route::post('/admin_manage/update', 'AdminController@update');
-            Route::post('/admin_manage/edit_info', 'AdminController@update_info');
-            Route::post('/admin_manage/delete', 'AdminController@delete');
-            Route::post('/admin_manage/deleteAll', 'AdminController@deleteAll');
-            Route::post('/admin_manage/admin_list', 'AdminController@pagination');
-            Route::post('/admin_manage/change_theme','AdminController@change_theme');
-            Route::post('/admin_manage/{id?}', 'AdminController@lists');
+            Route::post('/sys_admin_manage/add', 'AdminController@add');
+            Route::post('/sys_admin_manage/edit/{id?}', 'AdminController@edit');
+            Route::post('/sys_admin_manage/typeChange', 'AdminController@typeChange');
+            Route::post('/sys_admin_manage/insert', 'AdminController@insert');
+            Route::post('/sys_admin_manage/update', 'AdminController@update');
+            Route::post('/sys_admin_manage/edit_info', 'AdminController@update_info');
+            Route::post('/sys_admin_manage/delete', 'AdminController@delete');
+            Route::post('/sys_admin_manage/deleteAll', 'AdminController@deleteAll');
+            Route::post('/sys_admin_manage/admin_list', 'AdminController@pagination');
+            Route::post('/sys_admin_manage/change_theme','AdminController@change_theme');
+            Route::post('/sys_admin_manage/{id?}', 'AdminController@lists');
 
             //管理员个人中心
-            Route::post('/admin_center/{type?}', 'AdminController@manageList');
-            Route::post('/admin_center/edit_info', 'AdminController@update_info');
-            Route::post('/admin_center/check_pwd', 'AdminController@check_ori_pwd');
+            Route::post('/sys_admin_center/{type?}', 'AdminController@manageList');
+            Route::post('/sys_admin_center/edit_info', 'AdminController@update_info');
+            Route::post('/sys_admin_center/check_pwd', 'AdminController@check_ori_pwd');
 
             //系统管理
-            Route::post('/sys_manage','SysController@sysConfig');
-            Route::post('/sys_manage/postImg','SysController@headImgList');
-            Route::post('/sys_manage/editConfig','SysController@update');
-            Route::post('/sys_manage/addImg','SysController@addImg');
+            Route::post('/sys_setting','SysController@sysConfig');
+            Route::post('/sys_setting/getImg','SysController@headImgList');
+            Route::post('/sys_setting/editConfig','SysController@update');
+            Route::post('/sys_setting/addImg','SysController@addImg');
         });
         
         // Banner

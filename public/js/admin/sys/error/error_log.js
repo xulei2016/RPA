@@ -43,7 +43,7 @@ $(function(){
         	}else{
 	            myConfirmModal("确定要批量删除资讯吗？",function(){
 		            $.ajax({
-		                url:"/admin/error_log/deleteAll",
+		                url:"/admin/sys_error_log/deleteAll",
 		                type:"post",
 		                data:{"ids":ids},
 		                dataType:"json",
@@ -86,7 +86,7 @@ $(function(){
         var ids = $(this).attr("data_id");
         myConfirmModal("确定要删除该资讯吗？",function(){
            $.ajax({
-               url:"/admin/error_log/delete",
+               url:"/admin/sys_error_log/delete",
                type:"post",
                data:{"id":ids},
                dataType:"json",
@@ -143,7 +143,7 @@ $(function(){
         var selectInfo = getSelectInfo();
         $.ajax({
             type:'post',
-            url:'/admin/error_log/log_list',
+            url:'/admin/sys_error_log/log_list',
             data:{page:pageIndex,selectInfo:selectInfo},//从1开始计数
             dataType:'json',
             beforeSend:function(xhr){

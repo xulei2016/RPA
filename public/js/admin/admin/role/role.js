@@ -53,7 +53,7 @@ $(function(){
 
             //提交
             $.ajax({
-                url:"/admin/role_manage/grantRole",
+                url:"/admin/sys_role_manage/grantRole",
                 type:"post",
                 data:{"ids":ids,'id':id},
                 dataType:"json",
@@ -87,7 +87,7 @@ $(function(){
         	}else{
 	            myConfirmModal("确定要批量删除资讯吗？",function(){
 		            $.ajax({
-		                url:"/admin/role_manage/deleteAll",
+		                url:"/admin/sys_role_manage/deleteAll",
 		                type:"post",
 		                data:{"ids":ids},
 		                dataType:"json",
@@ -122,7 +122,7 @@ $(function(){
         var ids = $(this).attr("data_id");
         myConfirmModal("确定要删除该资讯吗？",function(){
            $.ajax({
-               url:"/admin/role_manage/delete",
+               url:"/admin/sys_role_manage/delete",
                type:"post",
                data:{"id":ids},
                dataType:"json",
@@ -155,7 +155,7 @@ $(function(){
         let type = $(this).attr("type");
         let id = $(this).attr("id");
         $.ajax({
-            url:'/admin/role_manage/typeChange',
+            url:'/admin/sys_role_manage/typeChange',
             data:{id:id,type:type},
             type:'post',
             dataType:'json',
@@ -178,7 +178,7 @@ $(function(){
 
         //获取权限，遍历数据
         $.ajax({
-            url:'/admin/role_manage/getPersission',
+            url:'/admin/sys_role_manage/getPersission',
             type:'post',
             data:{'id':id},
             dataType:'json',
@@ -232,7 +232,7 @@ $(function(){
         var selectInfo = getSelectInfo();
         $.ajax({
             type:'post',
-            url:'/admin/role_manage/role_list',
+            url:'/admin/sys_role_manage/role_list',
             data:{page:pageIndex,selectInfo:selectInfo},//从1开始计数
             dataType:'json',
             beforeSend:function(xhr){
@@ -275,7 +275,7 @@ $(function(){
                         (row.type ? '<a class="btn btn-danger btn-sm type" type="'+row.type+'" id="'+id+'">禁用</a> ':'<a class="btn btn-success btn-sm type" type="'+row.type+'" id="'+id+'">启用</a> ')
                         +'<a class="btn btn-primary btn-sm permission" href="#" data_id="'+id+'">权限设置</a> '
                         +'<a class="btn btn-primary btn-sm member" href="#" data_id="'+id+'" url="/admin/admin_manage/'+id+'" onclick="pjaxContent($(this))">成员管理</a> '
-                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="/admin/role_manage/edit/'+id+'" onclick="operation($(this))">修改</a> '
+                        +'<a class="btn btn-primary btn-sm edit" href="#" data_id="'+id+'" url="/admin/sys_role_manage/edit/'+id+'" onclick="operation($(this))">修改</a> '
                         +'<a class="btn btn-danger btn-sm delete" href="#" data_id="'+id+'">删除</a>'
                         +'</td>')
                         +'</tr>';

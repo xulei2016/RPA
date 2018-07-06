@@ -80,10 +80,10 @@ $(function(){
             let status = _this.parent().find("input[name='status']:checked").val();
             let pid = obj.parents('.per-title').attr('id');
             let id = obj.attr('id');
-            let url = "/admin/permission_manage/insert";
+            let url = "/admin/sys_permission_manage/insert";
             let data = {"pid":pid,'name':name,'description':desc,'status':status,"sort":sort,'table':table};
             if(type){
-                url = "/admin/permission_manage/update";
+                url = "/admin/sys_permission_manage/update";
                 data = {"id":id,"pid":pid,'name':name,'description':desc,'status':status,"sort":sort,'table':table};
             }
             $.ajax({
@@ -114,7 +114,7 @@ $(function(){
             if(!id){return;}
             myConfirmModal("确定要删除该菜单及其子菜单吗？",function(){
                 $.ajax({
-                    url:"/admin/permission_manage/delete",
+                    url:"/admin/sys_permission_manage/delete",
                     type:"post",
                     data:{"id":id},
                     dataType:"json",

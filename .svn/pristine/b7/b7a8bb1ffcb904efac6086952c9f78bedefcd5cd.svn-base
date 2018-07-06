@@ -1,0 +1,268 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Base;
+
+use Hash;
+use Auth;
+use App\Model\Admin\Base\sysAdmin as User;
+use App\Model\Admin\Role\role as roles;
+use Zizaco\Entrust\EntrustServiceProvider as Entrust;
+use App\Model\Admin\Role\permission;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Role\RoleRepository as Role;
+use App\Repositories\Models\Admin\Base\AdminRepository as Admin;
+use App\Repositories\Models\Admin\Base\UserHeadImgRepository as UserHeadImg;
+
+
+/**
+ * 后台管理
+ * @since 2018/2
+ * @author hus lay
+ * 
+ */
+class AdminController extends BaseController
+{
+    private $model;
+
+    private $img;
+
+    private $role_model;
+
+    //__CONSTRUCT
+    public function __CONSTRUCT(Admin $model, Role $role_model, UserHeadImg $img)
+    {
+        parent::__construct();
+        $this->model = $model;
+        $this->img = $img;
+        $this->role_model = $role_model;
+    }
+
+    /**
+     * 控制面板
+     */
+    public function dashboard(Request $request){
+        $user = new User;
+        $user = $user->find(2);
+
+        // $user = Auth::user();
+        // dd($user->hasRole('super_admin'));
+        // dd($user->can('site_bar'));
+
+        // dd(roles::withRole('超级管理员')->get());
+        //暂时不能使用can函数，因缓存存在冲突
+        // $user = auth()->guard('admin')->user();
+        // if($user->can('banner_add')){
+        //     dd(1);
+        // };   // true
+        // dd($user);
+        // dd($user->hasRole('super_admin'));   // true
+        // $user->hasRole('owner');   // false
+        // $user->can('edit-user');   // false
+        // $user->can('create-post'); // true
+
+        // $user->attachRole(1);
+        // $createPost = new Permission();
+        // $createPost->name         = 'create-post';
+        // $createPost->display_name = 'Create Posts'; // optional
+        // $createPost->description  = 'create new blog posts'; // optional
+        // $createPost->save();
+
+
+        // $result = $user->attachPermission(9);
+        // $user->perms()->sync(array(1,2));
+        // $this->log(__CLASS__, __FUNCTION__, $request, "查看 控制面板");
+        return view('admin/admin/admin/index');
+    }
+
+    /**
+     * admin_list
+     */
+    public function lists(Request $request){
+        $rid = $request->id;
+        $condition = ['type'=>1];
+        $sort = ['id', 'asc'];
+        $param = ['id', 'name'];
+        $roles = $this->role_model->findAllBy($condition, $sort, $param);
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 管理员列表");
+        return view('admin/admin/admin/list', ['rid'=>$rid,'roles'=>$roles['data']]);
+    }
+
+    /**
+     * add
+     */
+    public function add(Request $request){
+        $condition = ['type'=>1];
+        $sort = ['id', 'asc'];
+        $param = ['id', 'name'];
+        $roles = $this->role_model->findAllBy($condition, $sort, $param);
+        //头像
+        $imList = $this->img->all();
+        $this->log(__CLASS__, __FUNCTION__, $request, "添加 管理员 页面");
+        return view('admin/admin/admin/add', ['roles'=>$roles['data'],'imgList'=>$imList['data']]);
+    }
+
+    /**
+     * edit
+     */
+    public function edit(Request $request){
+        $id = $request->id;
+        $info = $this->model->find($id);
+        $condition = ['type'=>1];
+        $sort = ['id', 'asc'];
+        $param = ['id', 'name'];
+        $roles = $this->role_model->findAllBy($condition, $sort, $param);
+        //头像
+        $imList = $this->img->all();
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 管理员 页面");
+        return view('admin/admin/admin/edit', ['info'=>$info['data'],'roles'=>$roles['data'],'imgList'=>$imList['data']]);
+    }
+
+    /**
+     * insert
+     */
+    public function insert(Request $request){
+        $data = $this->get_params($request, ['name','head_img','password','role','email','phone','realName','type','desc']);
+        $data['password'] = bcrypt($data['password']);
+        $data['created_at'] = $this->getTime();
+        //用户角色新增
+        $admin = $this->model->create($data);
+        $user = new User;
+        $user = $user->find($admin['data']['id']);
+        $user->attachRole($data['role']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "新增 管理员 信息");
+        return $admin;
+    }
+
+    /**
+     * update_role
+     */
+    public function update(Request $request){
+        $data = $this->get_params($request, ['id','name','head_img','password','role','email','phone','realName','type','desc'],false);
+        if('' == $data['password'] || null == $data['password']){
+            unset($data['password']);
+        }else{
+            $data['password'] = bcrypt($data['password']);
+        } 
+        $user = new User;
+        $user = $user->find($data['id']);
+        $user->detachRole($request->old_role);
+        $user->attachRole($data['role']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 管理员 信息");
+        return $this->model->update($data,$data['id']);
+    }
+
+    /**
+     * typeChange
+     */
+    public function typeChange(Request $request){
+        $id = $request->id;
+        $type = (1 == $request->type) ? 0 : 1 ;
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 管理员 状态");
+        return $this->model->update(['type'=>$type], $id);
+    }
+
+    //delete
+    public function delete(Request $request){
+        $id = $request->id;
+        $this->log(__CLASS__, __FUNCTION__, $request, "删除 管理员 列表");
+        return $this->model->delete($id);
+    }
+    
+    //delete_all
+    public function deleteAll(Request $request){
+        $ids = $request->ids;
+        $this->log(__CLASS__, __FUNCTION__, $request, "批量删除 管理员 列表");
+        return $this->model->delete(explode(',',$ids));
+    }
+
+    //log_pagination
+    public function pagination(Request $request){
+        $selectInfo = $request->selectInfo;
+        $condition = [];
+        if('' != $selectInfo['name'] && null != $selectInfo['name']){
+            array_push($condition, ['sys_admins.name','=',$selectInfo['name']]);
+        }
+        if('' != $selectInfo['role'] && null != $selectInfo['role']){
+            array_push($condition, ['sys_admins.role','=',$selectInfo['role']]);
+        }
+        $sort = ['sys_admins.id', $selectInfo['sort']];
+        $columns = ['sys_admins.*','a.thumb','b.id as rid','b.name as rname'];
+        $table = [
+            [
+                'table'=>'sys_user_head_imgs as a',
+                'left' => 'sys_admins.head_img',
+                'mode' => '=',
+                'right' => 'a.id',
+            ],
+            [
+                'table'=>'sys_roles as b',
+                'left' => 'sys_admins.role',
+                'mode' => '=',
+                'right' => 'b.id',
+            ],
+        ];
+        return $this->model->left_paginate($table, $condition, $sort, 10, $columns);
+    }
+
+    ///////////////////////////////////////////////////////////////////个人中心//////////////////////////////////////////////////////////////////////
+
+    /**
+     * 个人中心
+     */
+    public function manageList(Request $request){
+        $info = auth()->guard('admin')->user();
+        $type = $request->type ? $request->type : null ;
+        //头像
+        $imgList = $this->img->all();
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 个人中心");
+        return view('admin/admin/admin/manageList', ['info' => $info,'type'=>$type,'imgList'=>$imgList['data']]);
+    }
+
+    /**
+     * 更新信息
+     */
+    public function update_info(Request $request){
+        switch($request->type){
+            case 'baseinfo':
+                $param = ['head_img','name', 'realName', 'email', 'sex', 'address', 'desc'];
+                $data = $this->get_params($request, $param);
+                $data['sex'] = isset($data['sex']) ? $data['sex'] : 0 ;
+                break;
+            case 'changePWD':
+                $data = ['password' => bcrypt($request->PWD)];
+                break;
+            case 'safeSetting':
+                $param = ['login_protected', 'single_login', 'message_email', 'remote_login_email','secret_change_email'];
+                $data = $this->get_params($request, $param, false, 0);
+                break;
+            default:
+                return 500;
+                break;
+        }
+        $this->del_cache('sys_admin');
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 个人中心 信息");
+        return $this->model->update($data, auth()->guard('admin')->user()->id);
+    }
+
+    /**
+     * 修改主题
+     */
+    public function change_theme(Request $request){
+        $theme = $request->theme;
+        return $this->model->update(['theme'=>$theme], auth()->guard('admin')->user()->id);
+    }
+
+    /**
+     * 检查原密码
+     */
+    public function check_ori_pwd(Request $request){
+        $user = auth()->guard('admin')->user();
+        $pwd = $request->pwd;
+        if (Hash::check($pwd,$user->password)) {
+            return 200;
+        }
+        return 500;
+    }
+}

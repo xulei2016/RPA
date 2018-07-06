@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    @include('admin.inner.header')
+
+    @yield('script-top')
+
+</head>
+<body>
+    
+    @include('admin.inner.left')
+
+    <div id="container">
+        @yield('content')
+        
+        {{--  页脚  --}}
+        <div id="footer">
+            <div class="info">
+                COPYRIGHT © <a href="blog.mihuyu.top">2015 华安futures 软件工程部</a> DESIGN. ALL RIGHTS RESERVED.
+            </div>
+        </div>
+    </div>
+
+    @include('admin.inner.alert')
+    
+    @include('admin.inner.footer')
+
+    @yield('script-foot')
+</body>
+</html>

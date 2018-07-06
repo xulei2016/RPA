@@ -70,7 +70,7 @@ $(function () {
     });
 
     //快捷菜单隐藏
-    $('.navbar .collapse .admin-info-list, .navbar .collapse .admin-theme').mouseover(function () {
+    $('.navbar .collapse .admin-info-list, .navbar .collapse .admin-theme,.navbar .collapse .admin-message').mouseover(function () {
         $(this).find('.popup').removeClass('hidden');
     }).mouseout(function () {
         $(this).find('.popup').addClass('hidden');
@@ -606,7 +606,7 @@ function clickColor(hex, seltop, selleft, html5) {
 function changeTheme() {
     $.ajax({
         type: "post",
-        url: "/admin/admin_manage/change_theme",
+        url: "/admin/sys_admin_manage/change_theme",
         data: { 'theme': colorhex },
         dataType: 'json'
     });

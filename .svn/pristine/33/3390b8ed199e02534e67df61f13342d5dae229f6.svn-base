@@ -1,0 +1,108 @@
+@extends('admin.inner.app')
+
+@section('content')
+<div class="inner-content">
+    <div class="bread-bar">
+        <h2>
+            <span><i class="iconfont">{{ Cache::get('active_list')['active_icon'] }} </i></span> {{ Cache::get('active_list')['active_name'] }}
+        </h2>
+    </div>
+    <div class="list-title-panel middle-layer">
+        <form class="form-inline collapse on" role="form" id="search-group">
+            <div class="form-group search-group">
+                <label for="name">用户名:</label>
+                <input type="text" class="form-control" id="name" placeholder="请输入名称">
+                <label for="startTime">时间:</label>
+                <input type="text" class="form-control" id="startTime" placeholder="请输入名称">
+                <label for="endTime">- </label>
+                <input type="text" class="form-control" id="endTime" placeholder="请输入名称">
+                <a href="#" class="btn btn-success btn-sm" id="search-btn">搜索</a>
+                <input type="reset" class="btn btn-default btn-sm" value="重置">
+            </div>
+        </form>
+        <div class="auxiliary-tool">
+            <span class="glyphicon glyphicon-list">列表</span>
+            <a href="javascript:;" class="btn btn-default btn-sm deletebatch">批量删除<i class="iconfont icon">&#xe69d;</i></a>
+            <a href="javascript:;" class="btn btn-default btn-sm selectsort" title="降序" type="desc">排序<i class="iconfont icon">&#xe6d0;</i></a>
+            <a href="javascript:;" class="btn btn-default btn-sm selectengine" data-toggle="collapse" data-target="#search-group" title="筛选器" type="active">筛选器<i class="iconfont icon">&#xe6d8;</i></a>
+            <a href="{{ URL('admin/role_manage/add_role') }}" class="btn btn-primary btn-sm right">添加角色</a>
+        </div>
+    </div>
+    <div class="inner-section">
+        <div id="content">
+            <table id="list-table" class="table table-hover table-bordered table-striped table-base">
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="page">
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('script-top')
+<link href="{{URL::asset('/css/admin/role/role.css')}}" rel="stylesheet">
+@endsection
+
+@section('script-foot')
+    <div class="modal fade tab-content" id="myTabContent" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">  &times; </button>
+                    <h4 class="modal-title">  权限管理 </h4>
+                </div>
+                <div class="modal-body">
+                    @foreach ($menus as $menu){{-- 顶级菜单 --}}
+                    <div class="menu per-menu per-title tab-pane in active" id="{{$menu->id}}">
+                        <div class="menu per-title" id="{{$menu->id}}">
+                        <input type="checkbox" class="select-single icheckbox" value="{{$menu->id}}">
+                        <span class="iconfont icon">&#xe6b9;</span>
+                        <b>{{$menu->description}}</b>
+                            <div class="menu menus">
+                                @if ($menu['menu'])
+                                @foreach ($menu['menu'] as $list){{-- 子集菜单 --}}
+                                    <div class="menu per-title" id="{{$list->id}}">
+                                        <input type="checkbox" class="select-single icheckbox" value="{{$list->id}}">
+                                        <span class="iconfont icon">&#xe6b9;</span>
+                                        <b>{{$list->description}}</b>
+                                    @if ($list['menu'])
+                                        <div class="menu menus">
+                                        @if ($list['menu'])
+                                        @foreach ($list['menu'] as $sublist){{-- 二级菜单 --}}
+                                            <div class="menu per-title" id="{{$sublist->id}}">
+                                                <input type="checkbox" class="select-single icheckbox" value="{{$sublist->id}}">
+                                                <span class="iconfont icon">&#xe6b9;</span>
+                                                <b>{{$sublist->description}}</b>
+                                                <ul class="menu per-menu menus">
+                                                    @if ($sublist['menu'])
+                                                    @foreach ($sublist['menu'] as $act){{-- 方法展示 --}}
+                                                        <label>
+                                                            <input type="checkbox" class="select-single icheckbox" value="{{$act->id}}">
+                                                            <li class="menu per-title" id="{{$act->id}}">{{$act->description}}</li>
+                                                        </label>
+                                                    @endforeach
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                        @endforeach
+                                        @endif
+                                        </div>
+                                    @endif
+                                    </div>
+                                @endforeach
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary submit" data-dismiss="modal">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{URL::asset('/include/jquery-bootpag/lib/jquery.bootpag.min.js')}}"></script>
+    <script type="text/javascript" src="{{URL::asset('/js/admin/role/role.js')}}"></script>
+@endsection

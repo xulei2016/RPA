@@ -1,0 +1,44 @@
+/**
+ *permission
+ */
+#myTabContent,
+#menuInfo,
+#menuOperation{
+    padding: 8px 12px;
+    float: left;
+}
+#menuInfo{
+    width: 15%;
+}
+#menuInfo .tab-pane{
+    min-height: 188px;
+}
+#myTabContent .tab-pane,
+#menuOperation .tab-pane,
+#menuInfo .tab-pane{
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    line-height: 30px;
+}
+#menuInfo .tab-pane a{
+    padding: 3px;
+    margin-right: 5px;
+    font-size: 16px;
+}
+#menuInfo .tab-pane a:hover{
+    font-size: 22px;
+}
+#myTabContent .per-title{
+    padding: 0 10px;
+    min-height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+}
+#myTabContent .per-title .menus{
+    padding-left: 40px;
+    position: relative;
+}
+#myTabContent .per-title .menus li{
+    list-style: none;
+    display: inline;
+}

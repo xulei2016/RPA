@@ -33,7 +33,7 @@ $(function(){
      */
     function successResponse(json,statusText){
         if(json.code == 200){
-            responseTip(json.code,json.info, 1500, function(){ window.location.href=document.referrer; });
+            responseTip(json.code,json.info, 1500);
         }else{
             responseTip(json.code,json.info, 1500);
         }

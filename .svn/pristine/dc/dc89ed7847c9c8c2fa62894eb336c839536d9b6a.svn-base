@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Controllers\Admin\base;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Role\PermissionRepository as Permission;
+
+
+/**
+ * 权限管理
+ * @since 2018/5/3
+ * @author hsu lay
+ * 
+ */
+class PermissionController extends BaseController
+{
+    private $model;
+
+    //__CONSTRUCT
+    public function __CONSTRUCT(Permission $model)
+    {
+        parent::__construct();
+        $this->model = $model;
+    }
+
+    /**
+     * 权限列表
+     */
+    public function index(Request $request){
+        $condition = [['table','=',1]];
+        $top_list = $this->model->findAllBy($condition, ['sort','asc']);
+        $menu = $this->get_group_menu($top_list['data']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 权限 列表");
+        return view('admin/permission/index',['menus' => $menu]);
+    }
+
+    /**
+     * 新增权限
+     */
+    public function insert(Request $request){
+        $data = $this->get_params($request,['pid','name','description','status','sort','table']);
+        $data['display_name'] = $data['name'];
+        $data['created_at'] = $this->getTime();
+        $this->log(__CLASS__, __FUNCTION__, $request, "新增 权限");
+        return $this->model->create($data);
+    }
+
+    /**
+     * 修改权限
+     */
+    public function update(Request $request){
+        $id = $request->id;
+        $data = $this->get_params($request,['pid','name','description','status','sort','table']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 权限");
+        return $this->model->update($data,$id);
+    }
+
+    /**
+     * 删除权限
+     */
+    public function delete(Request $request){
+        $id = $request->id;
+        $condition = [['pid','=',$id]];
+        $menu = $this->model->findAllBy($condition);
+        if(!$menu['data']->isEmpty()){
+            return $this->ajax_return('500','该菜单下还有子菜单未被删除！');
+        }
+        $this->log(__CLASS__, __FUNCTION__, $request, "删除 权限");
+        return $this->model->delete($id);
+    }
+
+    /**
+     * 查询分组
+     */
+    private function get_group_menu($menus){
+        foreach($menus as $menu){
+            $condition = [['pid','=',$menu['id']]];
+            $result = $this->model->findAllBy($condition, ['sort','asc']);
+            $result = $this->get_group_menu($result['data']);
+            if(!$result->isEmpty()){
+            //     array_splice($menus, 1, 0, $result);
+                $menu['menu'] = $result;
+            }
+        }
+        return $menus;
+    }
+}
