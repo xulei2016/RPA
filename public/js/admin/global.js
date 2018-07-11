@@ -94,7 +94,7 @@ $(function () {
         }
     });
 
-    // setInterval("getMessage()",30000);
+    setInterval("getMessage()",30000);
     adaptScreen(screen_adpt_obj);
     egg();
 });

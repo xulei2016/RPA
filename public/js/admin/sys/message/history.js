@@ -1,0 +1,240 @@
+$(function () {
+    var total = 1;//分页总页面数
+    var currentPage = 1;//当前页
+    var total_count = '';//当前页
+    var pageSize = '';//每页显示的记录数
+    var idList = [];//批量选择id所存的数组
+    var selectInfo = {};
+
+    /*
+     * 初始化
+     */
+    function init() {
+        bindEvent();
+        init_pagination();
+        init_date();
+        selecteSort(selectInfo, render);
+        selectePageNum(selectInfo, render);
+    }
+
+    /*
+     * 绑定事件
+     */
+    function bindEvent() {
+
+        //根据条件查询信息
+        $('#container .inner-content .middle-layer .search-group #search-btn').click(function () {
+            render(1);
+        });
+
+        //enter键盘事件
+        $("#container .inner-content .middle-layer .form-control input").keydown(function (event) {
+            event = event ? event : window.event;
+            if (event.keyCode == 13) {
+                render(1);
+            }
+        });
+
+        //批量删除
+        $("#container .inner-content .middle-layer .deletebatch").on('click', function () {
+            var ids = idList.join(',');
+            if ("" == ids) {
+                responseTip(1, '您尚未选择要删除的数据！', 1500);
+            } else {
+                myConfirmModal("确定要批量删除通知吗？", function () {
+                    $.ajax({
+                        url: "/admin/sys_history_message/deleteAll",
+                        type: "post",
+                        data: { "ids": ids },
+                        dataType: "json",
+                        beforeSend: function (xhr) {
+                            $("#loading").modal('show');
+                        },
+                        complete: function () {
+                            $("#loading").modal('hide');
+                        },
+                        success: function (json, statusText) {
+                            if (json.code == 200) {
+                                if (currentPage != 1 && (total_count - idList.length) % pageSize == 0) {
+                                    currentPage = currentPage - 1;
+                                }
+                                idList = [];//初始化idList的值
+                                render(currentPage);
+                            } else {
+                                responseTip(json.code, json.info, 1500);
+                            }
+                        },
+                        error: errorResponse
+                    });
+                });
+            }
+        });
+    }
+
+    /**
+     * 删除单条记录
+     */
+    function deleteOne() {
+        var ids = $(this).attr("data_id");
+        myConfirmModal("确定要删除该通知吗？", function () {
+            $.ajax({
+                url: "/admin/sys_history_message/delete",
+                type: "post",
+                data: { "id": ids },
+                dataType: "json",
+                beforeSend: function (xhr) {
+                    $("#loading").modal('show');
+                },
+                complete: function () {
+                    $("#loading").modal('hide');
+                },
+                success: function (json, statusText) {
+                    if (json.code == 200) {
+                        var length = $("#container #content .inner-section #list-table tbody tr").length - 1;
+                        if (currentPage != 1 && length % pageSize == 1) {
+                            currentPage = currentPage - 1;
+                        }
+                        render(true, currentPage, pageSize);
+                    } else {
+                        responseTip(json.code, json.info, 1500);
+                    }
+                },
+                error: errorResponse
+            });
+        });
+    }
+
+    /**
+     * 撤销操作
+     */
+    function revoke() {
+        var id = $(this).attr("data_id");
+        myConfirmModal("确定要撤销该通知吗？", function () {
+            $.ajax({
+                url: "/admin/sys_history_message/revoke",
+                type: "post",
+                data: { "id": id },
+                dataType: "json",
+                beforeSend: function (xhr) {
+                    $("#loading").modal('show');
+                },
+                complete: function () {
+                    $("#loading").modal('hide');
+                },
+                success: function (json, statusText) {
+                    if (json.code == 200) {
+                        var length = $("#container #content .inner-section #list-table tbody tr").length - 1;
+                        if (currentPage != 1 && length % pageSize == 1) {
+                            currentPage = currentPage - 1;
+                        }
+                        render(true, currentPage, pageSize);
+                    } else {
+                        responseTip(json.code, json.info, 1500);
+                    }
+                },
+                error: errorResponse
+            });
+        });
+    }
+
+    /**
+     * 案例分页显示方法
+     */
+    function init_pagination() {
+        render(1);
+        //调用公共分页方法
+        pagination("#container .inner-section #page", { pageSize: pageSize, total: total }, render);
+    }
+
+    /**
+     * 获取模糊参数
+     */
+    function getSelectInfo() {
+        let selectObj = $('#container .inner-content .middle-layer');
+        selectInfo.title = selectObj.find('.search-group #name').val();
+        selectInfo.from_add_time = selectObj.find('.search-group #startTime').val();
+        selectInfo.to_add_time = selectObj.find('.search-group #endTime').val();
+        selectInfo.sort = selectObj.find('a.selectsort').attr('type');
+        selectInfo.num = selectObj.find('.selectnum').val();
+        return selectInfo;
+    }
+
+    /**
+     * 分页动态渲染数据
+     * @param pageIndex 当前显示页
+     * @param pageSize 每页显示记录数
+     */
+    function render(pageIndex) {
+        //异步请求csrf头
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        var selectInfo = getSelectInfo();
+        $.ajax({
+            type: 'post',
+            url: '/admin/sys_history_message/message_list',
+            data: { page: pageIndex, selectInfo: selectInfo },//从1开始计数
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                $("#loading").modal('show');
+            },
+            complete: function () {
+                $("#loading").modal('hide');
+            },
+            success: function (json) {
+                if (json.code == 200) {
+                    var data = json.data;
+                    var html = '';
+
+                    html += '<tr><th><input type="checkbox" class="select-all icheckbox"><th>ID</th><th>标题</th>'
+                        + '<th>状态</th>'
+                        + '<th>消息类型</th>'
+                        + '<th>消息分发类型</th>'
+                        + '<th>发生时间</th>'
+                        + '<th>操作</th></tr>';
+
+                    for (let i = 0; i < data.data.length; i++) {
+                        let row = data.data[i];
+                        let id = row.id;
+                        let state = (row.is_revoke == 1) ? '<span class="text-danger">撤销</span>' : '<span class="text-success">正常</span>';
+                        let mode = (row.mode == 1) ? '个人通知' : (row.mode == 2) ? '角色通知' : '全体通知';
+                        let checked = (idList.indexOf(id.toString()) >= 0) ? "checked" : "";//判断当前记录先前有没有被选中
+                        html += '<tr><td><input type="checkbox" class="select-single icheckbox" value="' + id + '" ' + checked + '></td>'
+                            + '<td>' + row.id + '</td>'
+                            + '<td>' + row.title + '</td>'
+                            + '<td>' + state + '</td>'
+                            + '<td>' + row.tname + '</td>'
+                            + '<td>' + mode + '</td>'
+                            + '<td>' + row.add_time + '</td>'
+                            + '<td>'
+                            + '<a class="btn btn-primary btn-sm" href="#" url="/admin/sys_message_list/view/' + id + '" onclick="operation($(this));">查看</a> '
+                            + (row.is_revoke == 0 ? '<a class="btn btn-danger btn-sm revoke" href="#" data_id="' + id + '">撤销</a> ' : '') 
+                            + '<a class="btn btn-danger btn-sm delete" href="#" data_id="' + id + '">删除</a> '
+                            + '</td></tr>';
+                    }
+                    if (data.data.length == 0) {
+                        html += '<tr><td colspan="' + $(html).find("th").length + '"><p class="text-danger">暂无数据。</p></td></tr>';
+                        $("#container .inner-section #page").html('');
+                    }
+                    $("#container #content #list-table tbody").html(html);
+
+                    currentPage = data.current_page;
+                    total_count = data.total;
+                    pageSize = data.per_page;
+                    $("#container .inner-section #page").bootpag({ total: data.last_page, total_count: data.total, page: currentPage });//重新计算总页数,总记录数
+
+                    init_iCheck();
+                    batchSelect(idList, "#container #content #list-table .select-all", "#container #content #list-table .select-single");
+
+                    $("#container .inner-section #list-table .revoke").click(revoke);
+                    $("#container .inner-section #list-table .delete").click(deleteOne);
+
+                } else {
+                    responseTip(json.code, json.info, 1500);
+                }
+            },
+            error: errorResponse
+        });
+    }
+    init();
+});

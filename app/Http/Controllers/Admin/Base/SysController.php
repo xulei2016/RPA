@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Base\BaseController;
 use App\Repositories\Models\Admin\Base\SysConfigRepository as config;
 use App\Repositories\Models\Admin\Base\UserHeadImgRepository as UserHeadImg;
+use App\Repositories\Models\Admin\Base\MessageRepository as message;
 
 
 /**
@@ -18,24 +19,29 @@ class SysController extends BaseController
 {
     private $model;
     private $img;
+    private $message;
 
     //__CONSTRUCT
-    public function __CONSTRUCT(config $model, UserHeadImg $img)
+    public function __CONSTRUCT(config $model, UserHeadImg $img, message $message)
     {
         parent::__construct();
         $this->model = $model;
         $this->img = $img;
+        $this->message = $message;
     }
 
     /**
      * 主页
      */
     public function index(Request $request){
+        //管理员信息
         $admin = session('sys_admin');
-        // $admin['address'] = $admin['lastAddress']['city'].'-'.$admin['lastAddress']['county'].'-'.$admin['lastAddress']['isp'].'-'.$admin['lastAddress']['ip'];
+        //通知列表
+        $message = $this->getMessage();
+        //系统信息
         $info = $this->sys_info();
         $this->log(__CLASS__, __FUNCTION__, $request, "查看 首页");
-        return view('admin/index/index', ['info'=>$info,'admin'=>$admin]);
+        return view('admin/index/index', ['info'=>$info,'admin'=>$admin,'message'=>$message]);
     }
 
     /**
@@ -43,7 +49,6 @@ class SysController extends BaseController
      */
     public function get_index(Request $request){
         $admin = session('sys_admin');
-        // $admin['address'] = $admin['lastAddress']['city'].'-'.$admin['lastAddress']['county'].'-'.$admin['lastAddress']['isp'].'-'.$admin['lastAddress']['ip'];
         $info = $this->sys_info();
         $this->log(__CLASS__, __FUNCTION__, $request, "查看 首页");
         return view('admin/index/dashboard', ['info'=>$info,'admin'=>$admin]);
@@ -141,7 +146,17 @@ class SysController extends BaseController
      * 获取消息推送
      */
     public function getMessage(){
-        return '200';
+        $table = ['table'=>'sys_user_messages as a','left'=>'a.mid','mode'=>'=','right'=>'sys_messages.id'];
+        $table2 = ['table'=>'sys_message_types as b','left'=>'b.id','mode'=>'=','right'=>'sys_messages.type'];
+        $condition = [['a.uid','=',session('sys_admin')['id']],['a.is_read','=',0]];
+        $columns = ['sys_messages.*','a.*','b.name as tname'];
+        $message = $this->message
+                    ->leftJoin($table)
+                    ->leftJoin($table2['table'],$table2['left'],$table2['mode'],$table2['right'])
+                    ->where($condition)
+                    ->orderBy('sys_messages.id','asc')
+                    ->get($columns);
+        return ['count'=>count($message),'data'=>$message];
     }
     
     /**

@@ -1,12 +1,12 @@
 <div class="list-title-panel middle-layer">
     <form class="form-inline collapse on" role="form" id="search-group">
         <div class="form-group search-group">
-            <label for="name">用户名:</label>
+            <label for="name">标题:</label>
             <input type="text" class="form-control" id="name" placeholder="请输入名称">
             <label for="startTime">时间:</label>
-            <input type="text" class="form-control" id="startTime" placeholder="请输入名称">
+            <input type="text" class="form-control" id="startTime" placeholder="请选择时间">
             <label for="endTime">- </label>
-            <input type="text" class="form-control" id="endTime" placeholder="请输入名称">
+            <input type="text" class="form-control" id="endTime" placeholder="请选择时间">
             <a href="#" class="btn btn-success btn-sm" id="search-btn">搜索</a>
             <input type="reset" class="btn btn-default btn-sm" value="重置">
         </div>
@@ -23,7 +23,6 @@
             <option value="20">分页数：20</option>
         </select>
         <a href="javascript:void(0);" class="btn btn-default btn-sm al_read right">全部已读 <i class="iconfont icon">&#xe73a;</i></a>
-        <a href="javascript:void(0);" class="btn btn-default btn-sm all_al_read right">标为已读 <i class="iconfont icon">&#xe6e7;</i></a>
     </div>
 </div>
 <div class="inner-section">
