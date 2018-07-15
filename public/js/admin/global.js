@@ -30,10 +30,11 @@ $(function () {
         });
     });
 
+    //进度条
     $(document).on('pjax:start', function () {
         NProgress.start();
     });
-
+    //进度条结束
     $(document).on('pjax:end', function () {
         NProgress.done();
     });
@@ -94,7 +95,7 @@ $(function () {
         }
     });
 
-    // setInterval("getMessage()",30000);
+    setInterval("getMessage()", 30000);
     adaptScreen(screen_adpt_obj);
     egg();
 });
@@ -189,7 +190,6 @@ var init_date = () => {
 
 //刷新
 var refresh = () => {
-    // let url = $('.sidebar .sidebar-content li.active a').attr('url');
     let url = window.location.href;
     $.pjax({
         url: url,
@@ -522,7 +522,64 @@ function getMessage() {
         url: "/admin/getMessage",
         dataType: 'json'
     }).then(function (json) {
-        console.log(json);
+        //筛选消息
+        let oldmessage = $('#container .inner-content .admin-message .body .message-inner');
+        let ids = [];//本地已通知消息
+        for (let i = 0; i < oldmessage.length; i++) {
+            let message = oldmessage[i];
+            let id = $(message).attr('id');
+            if ($.inArray(id, ids) == -1) {
+                ids.push(parseInt(id));
+            }
+        }
+        //消息列表
+        $("body .notify-wrap").remove();
+        let myList = json.data;
+        let html = '';
+        let message = '';
+        for (let i = 0; i < myList.length; i++) {
+            let obj = myList[i];
+            if ($.inArray(obj.id, ids) == -1) {
+                ids.push(obj.id);
+                let type = (obj.mode == 1) ? '私信通知' : (obj.mode == 2) ? '管理员通知' : '系统通知';
+                html += '<div class="notify-wrap">'
+                    + '<div class="notify-title">' + type + '<span class="notify-off"><i class="icon iconfont">&#xe6e6;</i></span></div>'
+                    + '<div class="notify-content">' + obj.content + '</div>'
+                    + '<div class="notify-bottom">消息类型：' + obj.tname + '</div>'
+                    + '</div>';
+                message += '<div class="message-inner" id="'+ obj.id +'">'
+                    + '<div class="message-content">'
+                    + '<span class="pull-right">' + obj.add_time + '</span>'
+                    + '<span class="pull-left">' + type + '</span>'
+                    + '<div class="clearfix visible-xs"></div>'
+                    + '</div>'
+                    + '<a href="JavaScript:void(0);" title="查看站内信息">' + obj.title + '</a>'
+                    + '</div>';
+            }
+        }
+        let count = json.count;
+        if (html) {
+            $('#container .inner-content .navbar .admin-message .body .body-tool-info').remove();
+            if($('#container .inner-content .navbar .admin-message .topbar-notice-num').length > 0){
+                $('#container .inner-content .navbar .admin-message .topbar-notice-num').text(count);
+            }else{
+                $('#container .inner-content .navbar .admin-message').append("<span class='topbar-notice-num'>" + count + "</span>");
+            }
+            $('#container .inner-content .admin-message .body').prepend(message);
+            //播放消息提醒音乐
+            var au = document.createElement("audio");
+            au.preload = "auto";
+            au.src = "/common/voice/qipao.mp3";
+            au.play();
+
+            $("body").append(html);
+            $(".notify-wrap:first").delay(2000).slideDown(1000);
+            setTimeout(function () {
+                var _this = $(".notify-wrap:first");
+                nextNotifyShow();
+                _this.slideUp(1000);
+            }, 8000);
+        }
     }, function (e) {
         if ('Unauthorized' == e.responseText) {
             responseTip(500, '登录超时！', 5000, function () {
@@ -532,7 +589,24 @@ function getMessage() {
         location.href = "/admin";
     });
 }
+/**
+ * 循环显示通知
+ */
+var nextNotifyShow = () => {
+    var sec = 1000;
+    $("body > .notify-wrap").each(function () {
+        var _this = $(this);
+        setTimeout(function () {
+            if (_this.next().length > 0) {
+                _this.next().delay(1000).slideDown(1000);
+            }
+            _this.slideUp(1000);
+        }, sec);
+        sec += 6000;
+    });
+}
 
+//全屏事件
 function requestFullScreen(element) {
     // 判断各种浏览器，找到正确的方法
     var requestMethod = element.requestFullScreen || //W3C
@@ -541,8 +615,7 @@ function requestFullScreen(element) {
         element.msRequestFullScreen; //IE11
     if (requestMethod) {
         requestMethod.call(element);
-    }
-    else if (typeof window.ActiveXObject !== "undefined") {//for Internet Explorer
+    } else if (typeof window.ActiveXObject !== "undefined") {//for Internet Explorer
         var wscript = new ActiveXObject("WScript.Shell");
         if (wscript !== null) {
             wscript.SendKeys("{F11}");
@@ -559,8 +632,7 @@ function exitFull() {
         document.webkitExitFullscreen; //IE11
     if (exitMethod) {
         exitMethod.call(document);
-    }
-    else if (typeof window.ActiveXObject !== "undefined") {//for Internet Explorer
+    } else if (typeof window.ActiveXObject !== "undefined") {//for Internet Explorer
         var wscript = new ActiveXObject("WScript.Shell");
         if (wscript !== null) {
             wscript.SendKeys("{F11}");

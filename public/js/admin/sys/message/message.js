@@ -34,6 +34,35 @@ $(function(){
                 render(1);
             }
         });
+
+        //全部已读
+        $("#container .inner-content .middle-layer .al_read").on('click',function(){
+            myConfirmModal("确定要全部已读吗？",function(){
+                $.ajax({
+                    url:"/admin/sys_message_list/al_read",
+                    type:"post",
+                    dataType:"json",
+                    beforeSend:function(xhr){
+                        $("#loading").modal('show');
+                    },
+                    complete:function(){
+                        $("#loading").modal('hide');
+                    },
+                    success:function(json,statusText){
+                        if(json.code == 200){
+                            if(currentPage != 1 && (total_count - idList.length) % pageSize == 0){
+                                currentPage = currentPage - 1;
+                            }
+                            idList = [];//初始化idList的值
+                            render(currentPage);
+                        }else{
+                            responseTip(json.code,json.info,1500);
+                        }
+                    },
+                    error:errorResponse
+                });
+            });
+        });
         
         //批量删除
         $("#container .inner-content .middle-layer .deletebatch").on('click', function(){
@@ -105,11 +134,34 @@ $(function(){
     }
 
     /**
-     * 查看参数
+     * 已读
      */
-    function viewParam(){
-        var datas = $(this).attr("data");
-        responseTip(3,datas);
+    function read(){
+        var id = $(this).attr("data_id");
+        $.ajax({
+            url:"/admin/sys_message_list/read",
+            type:"post",
+            data:{"id":id},
+            dataType:"json",
+            beforeSend:function(xhr){
+                $("#loading").modal('show');
+            },
+            complete:function(){
+                $("#loading").modal('hide');
+            },
+            success:function(json,statusText){
+                 if(json.code == 200){
+                    var length = $("#container #content .inner-section #list-table tbody tr").length - 1;
+                    if(currentPage !=1 && length % pageSize == 1){
+                        currentPage = currentPage - 1;
+                    }
+                    render(true,currentPage,pageSize);
+                 }else{
+                     responseTip(json.code,json.info,1500);
+                 }
+            },
+            error:errorResponse
+        });
     }
 
     /**
@@ -161,34 +213,26 @@ $(function(){
                     var data = json.data;
                     var html ='';
 
-                    html+='<tr><th><input type="checkbox" class="select-all icheckbox"><th>ID</th><th>控制器</th>'
-                        +'<th>方法</th>'
-                        +'<th>用户名</th>'
-                        +'<th>ip地址</th>'
-                        +'<th>请求方式</th>'
-                        +'<th>浏览器代理</th>'
-                        +'<th>地理位置</th>'
-                        +'<th>描述</th>'
-                        +'<th>时间</th>'
+                    html+='<tr><th><input type="checkbox" class="select-all icheckbox"><th>ID</th><th>标题</th>'
+                        +'<th>消息类型</th>'
+                        +'<th>状态</th>'
+                        +'<th>发生时间</th>'
                         +'<th>操作</th></tr>';
 
                     for(let i = 0; i < data.data.length;i++){
                         let row = data.data[i];
-                        let id = row.id;
+                        let id = row.mid;
+                        let is_read = (row.is_read == 0) ? '<span class="text-primary">未读</span>' : '<span class="text-danger">已读</span>';
                         let checked = (idList.indexOf(id.toString()) >= 0) ? "checked":"";//判断当前记录先前有没有被选中
                         html+='<tr><td><input type="checkbox" class="select-single icheckbox" value="'+id+'" '+checked+'></td>'
                         +'<td>'+row.id+'</td>'
-                        +'<td>'+row.controller+'</td>'
-                        +'<td>'+row.action+'</td>'
-                        +'<td>'+row.account+'</td>'
-                        +'<td>'+row.ip+'</td>'
-                        +'<td>'+row.method+'</td>'
-                        +'<td>'+row.agent+'</td>'
-                        +'<td>'+row.province+'--'+row.city+'</td>'
-                        +'<td>'+row.simple_desc+'</td>'
+                        +'<td>'+row.title+'</td>'
+                        +'<td>'+row.tname+'</td>'
+                        +'<td>'+is_read+'</td>'
                         +'<td>'+row.add_time+'</td>'
                         +'<td>'
-                        +'<a class="btn btn-primary btn-sm param" href="#" data_id="'+id+'" data='+row.data+'>参数</a> '
+                        +'<a class="btn btn-primary btn-sm param" href="#" url="/admin/sys_message_list/view/' + id + '" onclick="operation($(this));">查看</a> '
+                        +(row.is_read == 0 ? '<a class="btn btn-danger btn-sm read" href="#" data_id="'+id+'">已读</a> ' : '')
                         +'<a class="btn btn-danger btn-sm delete" href="#" data_id="'+id+'">删除</a>'
                         +'</td></tr>';
                     }
@@ -205,8 +249,7 @@ $(function(){
 
                     init_iCheck();
                     batchSelect(idList,"#container #content #list-table .select-all","#container #content #list-table .select-single");
-
-                    $("#container .inner-section #list-table .param").click(viewParam);
+                    $("#container .inner-section #list-table .read").click(read);
                     $("#container .inner-section #list-table .delete").click(deleteOne);
                         
                 }else{

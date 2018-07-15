@@ -36,7 +36,9 @@
         <div class="nava navbar-right admin-message">
             <a href="#">
                 <span><i class="iconfont">&#xe61e;</i></span>
-                <span class="topbar-notice-num">5</span>
+                @if($message['count'] != 0)
+                <span class="topbar-notice-num">{{ $message['count'] }}</span>
+                @endif
             </a>
             <div class="hidden popup">
                 <div class="admin-info message">
@@ -45,10 +47,23 @@
                         <a href="javascript:void(0);" class="popup-close"><i class="icon iconfont">&#xe69a;</i></a>
                     </div>
                     <div class="body">
-                        <div class="body-tool-info">暂无未读消息</div>
+                        @if($message['count'] != 0)
+                            @foreach($message['data'] as $message)
+                                <div class="message-inner" id="{{$message['id']}}">
+                                    <div class="message-content">
+                                        <span class="pull-right">{{$message['add_time']}}</span>
+                                        <span class="pull-left">{{$message['tname']}}</span>
+                                        <div class="clearfix visible-xs"></div>
+                                    </div>
+                                    <a href="JavaScript:void(0);" title="查看站内信息">{{$message['title']}}</a>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="body-tool-info">暂无未读消息</div>
+                        @endif
                     </div>
                     <div class="foot">
-                        <a href="{{ url('/admin/logout') }}">
+                        <a href="javascript:void(0);" url="{{ url('/admin/sys_message_list') }}" onclick="pjaxContent($(this));">
                             <span>进入消息中心</span>
                         </a>
                     </div>
@@ -89,7 +104,7 @@
                         <div id="divpreview" >&nbsp;</div>
                     </div>
                     <div class="foot">
-                        <a href="JavaScript:void;" onclick="changeTheme();">
+                        <a href="JavaScript:void(0);" onclick="changeTheme();">
                             <span>确认</span>
                         </a>
                     </div>
@@ -107,7 +122,7 @@
             
             {{--  popup page  --}}
             <div class="hidden popup">
-                <div class="admin-info">
+                <div class="admin-info admin">
                     <div class="head">
                         <img src="{{ session('sys_admin')['headImg'] }}">
                         <p>

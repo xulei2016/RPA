@@ -43,9 +43,20 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function(){
             
             //通知
             Route::post('/sys_message_list', 'MessageController@index');
-            Route::post('/sys_history_message', 'MessageController@history_list');
-            Route::post('/sys_history_message/message_list', 'MessageController@history_pagination');
+            Route::post('/sys_message_list/view/{id}', 'MessageController@view');
+            Route::post('/sys_message_send', 'MessageController@sendMessage');
+            Route::post('/sys_message_list/send', 'MessageController@send');
+            Route::post('/sys_message_list/read', 'MessageController@read');
+            Route::post('/sys_message_list/al_read', 'MessageController@al_read');
+            Route::post('/sys_message_list/delete', 'MessageController@delete');
+            Route::post('/sys_message_list/deleteAll', 'MessageController@deleteAll');
             Route::post('/sys_message_list/message_list', 'MessageController@pagination');
+            Route::post('/sys_history_message', 'MessageController@history_list');
+            Route::post('/sys_history_message/view/{id}', 'MessageController@view');
+            Route::post('/sys_history_message/message_list', 'MessageController@history_pagination');
+            Route::post('/sys_history_message/revoke', 'MessageController@revoke');
+            Route::post('/sys_history_message/delete', 'MessageController@delete_history');
+            Route::post('/sys_history_message/deleteAll', 'MessageController@deleteAllHistory');
             
             //操作日志
             Route::post('/sys_base_log', 'LogController@log_list');
