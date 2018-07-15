@@ -52,7 +52,15 @@
                                 <div class="message-inner" id="{{$message['id']}}">
                                     <div class="message-content">
                                         <span class="pull-right">{{$message['add_time']}}</span>
-                                        <span class="pull-left">{{$message['tname']}}</span>
+                                        <span class="pull-left">
+                                            @if($message['mode'] == 1)
+                                                私信通知
+                                            @elseif($message['mode'] == 2)
+                                                管理员通知
+                                            @else
+                                                系统通知
+                                            @endif
+                                        </span>
                                         <div class="clearfix visible-xs"></div>
                                     </div>
                                     <a href="JavaScript:void(0);" title="查看站内信息">{{$message['title']}}</a>

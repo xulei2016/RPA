@@ -537,7 +537,7 @@ function getMessage() {
         let myList = json.data;
         let html = '';
         let message = '';
-        for (let i = 0; i < myList.length; i++) {
+        for (let i = 0; i < myList.length; i++) { 
             let obj = myList[i];
             if ($.inArray(obj.id, ids) == -1) {
                 ids.push(obj.id);
