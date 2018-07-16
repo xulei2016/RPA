@@ -58,7 +58,6 @@ $(function(){
             }).then(function(json,statusText){
                 if(json.code == 200){
                     //登录成功,跳转页面
-                    alert('恭喜您，登录成功！');
                     window.location.href = "./index";
                 }else if(json.code == 500){
                     //登录失败
