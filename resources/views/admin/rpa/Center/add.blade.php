@@ -44,6 +44,15 @@
                     <td></td>
                 </tr>
                 <tr>
+                    <td><label><span class="must-tag"></span>消息通知</label></td>
+                    <td>
+                        @foreach($admins as $admin)
+                            <label><input type="checkbox" class="icheckbox" name="messageSet[]" value="{{ $admin['id'] }}">{{ $admin['name'] }} </label>
+                        @endforeach
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
                     <td></td>
                     <td>
                         <button type="button" class="btn btn-success btn-md" id="save">提交</button>

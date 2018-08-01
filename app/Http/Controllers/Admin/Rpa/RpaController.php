@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin\rpa;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Base\AdminRepository as Admin;
 use App\Repositories\Models\Admin\Rpa\TimeTasksRepository as TimeTasks;
 use App\Repositories\Models\Admin\Rpa\ImmedTasksRepository as ImmedTasks;
 use App\Repositories\Models\Admin\Rpa\MaintenanceRepository as Maintenance;
@@ -21,15 +22,17 @@ class RpaController extends BaseController
     private $app;
     private $task;
     private $queue;
+    private $admin;
 
     //__CONSTRUCT
-    public function __CONSTRUCT(Maintenance $model, ImmedTasks $app, TasksRepository $Task, TimeTasks $queue)
+    public function __CONSTRUCT(Maintenance $model, ImmedTasks $app, TasksRepository $Task, TimeTasks $queue, Admin $admin)
     {
         parent::__construct();
         $this->model = $model;
         $this->task = $Task;
         $this->queue = $queue;
         $this->app = $app;
+        $this->admin = $admin;
     }
 
     //RPA list
@@ -47,27 +50,35 @@ class RpaController extends BaseController
     //RPA add
     public function add(Request $request){
         $this->log(__CLASS__, __FUNCTION__, $request, "添加 rpa 任务");
-        return view('admin/rpa/Center/add');
+        //通知角色
+        $condition = [['type','=','1']];
+        $admin = $this->admin->findAllBy($condition);
+        return view('admin/rpa/Center/add',['admins'=>$admin['data']]);
     }
 
     //RPA edit
     public function edit(Request $request){
         $id = $request->id;
         $info = $this->model->find($id);
+        $info['data']['messageSet'] = $info['data']['messageSet'] ? json_decode($info['data']['messageSet']) : [] ;
+        $condition = [['type','=','1']];
+        $admin = $this->admin->findAllBy($condition);
         $this->log(__CLASS__, __FUNCTION__, $request, "修改 rpa 任务");
-        return view('admin/rpa/Center/edit',['info'=>$info['data']]);
+        return view('admin/rpa/Center/edit',['info'=>$info['data'],'admins'=>$admin['data']]);
     }
 
     //RPA insert
     public function insert(Request $request){
-        $data = $this->get_params($request, ['name','bewrite','filepath','failtimes','timeout','isfp','emailreceiver','PhoneNum']);
+        $data = $this->get_params($request, ['name','bewrite','filepath','failtimes','timeout','isfp','emailreceiver','PhoneNum','messageSet']);
+        isset($data['messageSet']) ? $data['messageSet'] = json_encode($data['messageSet']) : '';
         $this->log(__CLASS__, __FUNCTION__, $request, "插入 rpa 信息");
         return $this->model->create($data);
     }
 
     //RPA update
     public function update(Request $request){
-        $data = $this->get_params($request, ['id','name','bewrite','filepath','failtimes','timeout','isfp','emailreceiver','PhoneNum']);
+        $data = $this->get_params($request, ['id','name','bewrite','filepath','failtimes','timeout','isfp','emailreceiver','PhoneNum','messageSet']);
+        isset($data['messageSet']) ? $data['messageSet'] = json_encode($data['messageSet']) : '';
         $this->log(__CLASS__, __FUNCTION__, $request, "更新 rpa 信息");
         return $this->model->update($data,$data['id']);
     }

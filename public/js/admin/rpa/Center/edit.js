@@ -4,6 +4,7 @@ $(function(){
      * 页面初始化
      */
     function init(){
+        init_iCheck();
         bindEvent();
         //表单的JQueryValidater配置验证---jquery.validate插件验证法
         $("#myForm").validate(validateInfo);
