@@ -1,0 +1,52 @@
+<div class="list-title-panel middle-layer">
+    <form class="form-inline collapse on" role="form" id="search-group">
+        <div class="form-group search-group">
+            <label for="name">用户名:</label>
+            <select name="name" id="name" class="form-control">
+                <option value="" selected>无</option>
+                @foreach($list as $name)
+                    @if(session('sys_admin')['realName'] == $name)
+                    <option value="{{ $name }}" selected>{{ $name }}</option>
+                    @else
+                    <option value="{{ $name }}">{{ $name }}</option>
+                    @endif
+                @endforeach
+            </select>
+            <label for="name">状态:</label>
+            <select name="status" id="status" class="form-control">
+                <option value="" selected>无</option>
+                <option value="1">已回访</option>
+                <option value="0">未回访</option>
+            </select>
+            <label for="startTime">时间:</label>
+            <input type="text" class="form-control" id="startTime" placeholder="请选择时间">
+            <label for="endTime">- </label>
+            <input type="text" class="form-control" id="endTime" placeholder="请选择时间">
+            <a href="#" class="btn btn-success btn-sm" id="search-btn">搜索</a>
+            <input type="reset" class="btn btn-default btn-sm" value="重置">
+        </div>
+    </form>
+    <div class="auxiliary-tool">
+        <span class="glyphicon glyphicon-list">列表</span>
+        <a href="javascript:;" class="btn btn-primary btn-sm" onclick="refresh();"><i class="iconfont icon">&#xe6aa;</i></a>
+        <a href="javascript:;" class="btn btn-default btn-sm selectsort" title="降序" type="desc">排序<i class="iconfont icon">&#xe6d0;</i></a>
+        <a href="javascript:;" class="btn btn-default btn-sm selectengine" data-toggle="collapse" data-target="#search-group" title="筛选器" type="active">筛选器<i class="iconfont icon">&#xe6d8;</i></a>
+        <select name="selectnum" class="btn btn-default btn-sm selectnum">
+            <option value="5">分页数：5</option>
+            <option value="10" selected>分页数：10</option>
+            <option value="20">分页数：20</option>
+        </select>
+    </div>
+</div>
+<div class="inner-section">
+    <div id="content">
+        <table id="list-table" class="table table-hover table-bordered table-striped table-base">
+            <tbody></tbody>
+        </table>
+    </div>
+    <div id="page">
+    </div>
+</div>
+
+<script type="text/javascript" src="{{URL::asset('/include/jquery-bootpag/lib/jquery.bootpag.min.js')}}"></script>
+<script type="text/javascript" src="{{URL::asset('/js/admin/rpa/JJRVis/list.js')}}"></script>

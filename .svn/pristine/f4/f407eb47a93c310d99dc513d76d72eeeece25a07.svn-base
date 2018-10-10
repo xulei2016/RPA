@@ -1,0 +1,190 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Rpa;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Base\BaseController;
+use App\Repositories\Models\Admin\Rpa\ImmedTasksRepository as ImmedTasks;
+use App\Repositories\Models\Admin\Rpa\OabremindingRepository as oabreminding;
+use App\Repositories\Models\Admin\Rpa\CapitalreferRepository as capitalrefer;
+
+/**
+ * 资金可用余额提醒管理
+ * @since 2018/10
+ * @author hus lay
+ * 
+ */
+class OabremindingController extends BaseController
+{
+    private $model;
+
+    private $tasks;
+
+    private $capital;
+
+    //__CONSTRUCT
+    public function __CONSTRUCT(Oabreminding $model, Capitalrefer $capital, ImmedTasks $tasks)
+    {
+        parent::__construct();
+        $this->model = $model;
+        $this->tasks = $tasks;
+        $this->capital = $capital;
+    }
+
+    //RPA list
+    public function index(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 可用资金查询 任务中心");
+        return view('admin/rpa/Oabremind/list');
+    }
+
+    //RPA add
+    public function add(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "添加 可用资金查询 任务");
+        $varietyList = $this->capital->All();
+        return view('admin/rpa/Oabremind/add',['varietyList' => $varietyList['data']]);
+    }
+
+    //RPA edit
+    public function edit(Request $request){
+        $id = $request->id;
+        $info = $this->tasks->find($id);
+        $info = $info['data'];
+        $info['week'] = explode(',', $info['week']);
+        $info['data'] = json_decode($info['jsondata']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 可用资金查询 任务");
+        return view('admin/rpa/Oabremind/edit',['info'=>$info]);
+    }
+
+    //RPA insert
+    public function insert(Request $request){
+        $data = $this->get_params($request, ['khh','tid']);
+        $data['created_at'] = $this->getTime();
+        $this->log(__CLASS__, __FUNCTION__, $request, "插入 可用资金查询 信息");
+        $this->model->create($data);
+        return $this->immedtask($data['khh']);
+    }
+
+    //RPA update
+    public function update(Request $request){
+        $data = $this->get_params($request, ['id','description','date','week','time','jsondata'],false);
+        $data['name'] = 'OABReminding';
+        $data['week'] = $data['week'] ? implode(',',$data['week']) :'';
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 可用资金查询 信息");
+        $this->immedtask();
+        //查询rpa任务表tid
+        $this->model->update($data,$data['id'],'tid');
+        return $this->tasks->update($data,$data['id']);
+    }
+
+    //delete RPA
+    public function delete(Request $request){
+        $id = $request->id;
+        $this->log(__CLASS__, __FUNCTION__, $request, "删除 可用资金查询");
+        $this->immedtask();
+        $this->tasks->delete($id);
+        return $this->model->deleteBy([['tid','=',$id]]);
+    }
+    
+    //delete_all
+    public function deleteAll(Request $request){
+        $ids = $request->ids;
+        $this->log(__CLASS__, __FUNCTION__, $request, "批量删除 可用资金查询 列表");
+        $this->immedtask();
+        $this->tasks->delete(explode(',',$ids));
+        return $this->model->deleteBy([['tid','in',explode(',',$ids)]]);
+    }
+
+    //pagenation
+    public function pagination(Request $request){
+        $selectInfo = $request->selectInfo;
+        $condition = $this->getPagingList($selectInfo, ['from_created_at'=>'>=','to_created_at'=>'<=','status'=>'=']);
+        $customer = $selectInfo['customer'];
+        if($customer && is_numeric( $customer )){
+            array_push($condition,  array('khh', '=', $customer));
+        }elseif(!empty( $customer )){
+            array_push($condition,  array('name', '=', $customer));
+        }
+        // $sort = ['created_at','asc'];
+        $num = $selectInfo['num'];
+        // return $this->model->paginate($condition, $sort, $num);
+
+        $sort = ['a.created_at', $selectInfo['sort']];
+        $columns = ['a.*','b.*'];
+        $table = [
+            [
+                'table'=>'rpa_oabremindings as a',
+                'left' => 'rpa_capitalrefers.id',
+                'mode' => '=',
+                'right' => 'a.tid',
+            ]
+        ];
+        return $this->model->left_paginate($table, $condition, $sort, $num, $columns);
+    }
+
+    //发布任务
+    public function immedtask($khh){
+        $data = ['name'=>'OABReminding','jsondata'=>"{'khh':$khh}"];
+        return $this->tasks->create($data);
+    }
+
+    //立即发布任务
+    public function insertImmedtasks(Request $request){
+        $task = $this->get_params($request, ['description','jsondata']);
+        $task['name'] = 'OABReminding';
+        $data = ['name'=>$task['name'],'jsondata'=>$task['jsondata']];
+        $this->log(__CLASS__, __FUNCTION__, $request, "立即发布 {$task['name']} 任务");
+        return $this->app->create($data);
+    }
+
+
+    /////////////////////////////////////////////////////////品种操作/////////////////////////////////////////////////////
+
+    
+    //RPA list
+    public function varietyList(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "查看 品种");
+        return view('admin/rpa/Oabremind/varietyList');
+    }
+
+    //RPA add
+    public function varietyAdd(Request $request){
+        $this->log(__CLASS__, __FUNCTION__, $request, "添加 品种");
+        return view('admin/rpa/Oabremind/varietyAdd');
+    }
+
+    //RPA edit
+    public function varietyEdit(Request $request){
+        $id = $request->id;
+        $info = $this->capital->find($id);
+        $this->log(__CLASS__, __FUNCTION__, $request, "修改 品种");
+        return view('admin/rpa/Oabremind/varietyEdit',['info'=>$info['data']]);
+    }
+
+    //RPA insert
+    public function varietyInsert(Request $request){
+        $data = $this->get_params($request, ['desc','name','exfund']);
+        $this->log(__CLASS__, __FUNCTION__, $request, "插入 品种");
+        return $this->capital->create($data);
+    }
+
+    //RPA update
+    public function varietyUpdate(Request $request){
+        $data = $this->get_params($request, ['id','desc','name','exfund'],false);
+        $this->log(__CLASS__, __FUNCTION__, $request, "更新 品种");
+        return $this->capital->update($data,$data['id']);
+    }
+
+    //delete RPA
+    public function varietyDelete(Request $request){
+        $id = $request->id;
+        $this->log(__CLASS__, __FUNCTION__, $request, "删除 品种");
+        return $this->capital->delete($id);
+    }
+
+    //pagenation
+    public function varietyPagination(Request $request){
+        $condition = [];
+        $sort = ['id','asc'];
+        return $this->capital->paginate($condition, $sort, 10);
+    }
+}
